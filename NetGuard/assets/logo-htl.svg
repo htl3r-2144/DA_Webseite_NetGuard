@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 36" width="132" height="36"
+     role="img" aria-label="Platzhalter für das Schullogo">
+  <!-- PLATZHALTER — von Michal ersetzen.
+       Diese Datei durch das offizielle Logo der HTL Wien 3 Rennweg ersetzen
+       (gleicher Dateiname, gleiche Maße 132x36, bevorzugt SVG).
+       Weichen die Maße ab, in data/content.js meta.logoBreite und
+       meta.logoHoehe anpassen — sonst springt beim Laden das Layout. -->
+  <rect x="0.5" y="0.5" width="131" height="35" rx="5"
+        fill="none" stroke="#7C868D" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="66" y="16" text-anchor="middle" font-family="Consolas, monospace"
+        font-size="9" letter-spacing="0.6" fill="#7C868D">SCHULLOGO</text>
+  <text x="66" y="27" text-anchor="middle" font-family="Consolas, monospace"
+        font-size="8" letter-spacing="0.4" fill="#7C868D">hier einsetzen</text>
+</svg>
