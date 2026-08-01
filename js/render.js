@@ -64,6 +64,56 @@
     + '<path d="M4 10h11M11 5.5 15.5 10 11 14.5" fill="none" stroke="currentColor" '
     + 'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
+  /* -- Theme-Umschalter ----------------------------------------------------
+     Läuft neben prefers-color-scheme: ohne gespeicherte Wahl folgt die Seite
+     dem Systemschema, ein Klick setzt data-theme fest und merkt es sich.
+     Das Flackern beim Laden verhindert ein Inline-Skript im <head> jeder
+     Seite, das die gespeicherte Wahl vor dem ersten Rendern setzt.          */
+  var THEME_KEY = 'netguard-theme';
+
+  var ICON_SONNE = '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">'
+    + '<circle cx="10" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/>'
+    + '<path d="M10 1.5v2.4M10 16.1v2.4M18.5 10h-2.4M3.9 10H1.5M15.9 4.1l-1.7 1.7'
+    + 'M5.8 14.2l-1.7 1.7M15.9 15.9l-1.7-1.7M5.8 5.8 4.1 4.1" stroke="currentColor" '
+    + 'stroke-width="1.6" stroke-linecap="round"/></svg>';
+  var ICON_MOND = '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">'
+    + '<path d="M17 12.4A7.5 7.5 0 1 1 7.6 3a6 6 0 0 0 9.4 9.4Z" fill="none" '
+    + 'stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" '
+    + 'stroke-linecap="round"/></svg>';
+
+  function gespeichertesTheme() {
+    try { return window.localStorage.getItem(THEME_KEY); } catch (e) { return null; }
+  }
+
+  function effektivesTheme() {
+    var g = gespeichertesTheme();
+    if (g === 'light' || g === 'dark') return g;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  function wendeTheme(modus) {
+    document.documentElement.setAttribute('data-theme', modus);
+    var btn = $('#theme-toggle');
+    if (!btn) return;
+    var hell = modus === 'light';
+    btn.innerHTML = hell ? ICON_MOND : ICON_SONNE;
+    btn.setAttribute('aria-pressed', hell ? 'false' : 'true');
+    btn.setAttribute('aria-label', hell
+      ? 'Dunkles Farbschema aktivieren' : 'Helles Farbschema aktivieren');
+  }
+
+  function initThemeToggle() {
+    var btn = $('#theme-toggle');
+    if (!btn) return;
+    wendeTheme(effektivesTheme());
+    btn.addEventListener('click', function () {
+      var neu = document.documentElement.getAttribute('data-theme') === 'light'
+        ? 'dark' : 'light';
+      try { window.localStorage.setItem(THEME_KEY, neu); } catch (e) { /* ignoriert */ }
+      wendeTheme(neu);
+    });
+  }
+
   /* Alle Seiten außer der Startseite — für Nummerierung und Blättern. */
   function unterseiten() {
     return C.navigation.filter(function (s) { return s.id !== 'index'; });
@@ -96,7 +146,9 @@
             + nr + '<span>' + esc(s.nav) + '</span></a></li>';
         }).join('')
       + '</ul></nav>'
+      + '<button type="button" class="theme-toggle" id="theme-toggle"></button>'
       + '</div>';
+    initThemeToggle();
   }
 
   /* -- Seitenkopf ---------------------------------------------------------- */
