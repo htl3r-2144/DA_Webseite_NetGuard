@@ -695,20 +695,10 @@ window.NETGUARD_CONTENT = {
     /* Downloads. Ist die Liste leer, wird der Bereich ausgeblendet.
        Weitere Dateien: nach assets/ legen und hier eine Zeile ergänzen.
 
-       Zum Ansuchen: Es ist die Originalfassung. Auf Seite 9 stehen die
-       Schul-E-Mail-Adressen aller vier Teammitglieder — so am 28.07.2026
-       entschieden.
-
-       Falls das später zurückgenommen werden soll, reicht es NICHT, diese
-       Zeile zu entfernen: die Datei liegt dann weiterhin unter
-       assets/da-ansuchen.pdf und bleibt über die direkte URL erreichbar.
-       Sie muss zusätzlich gelöscht und der Löschstand gepusht werden. */
-    dokumente: [
-      {
-        titel: 'Diplomarbeitsansuchen',
-        datei: './assets/da-ansuchen.pdf',
-        groesse: 'PDF · 287 kB'
-      }
-    ]
+       Diplomarbeitsansuchen entfernt: Auf Seite 9 der Originalfassung
+       stehen die Schul-E-Mail-Adressen aller vier Teammitglieder — das
+       ist personenbezogene Daten, die hier nicht öffentlich stehen
+       dürfen. assets/da-ansuchen.pdf wurde deshalb ebenfalls gelöscht. */
+    dokumente: []
   }
 };
