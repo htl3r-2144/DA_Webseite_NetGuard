@@ -67,13 +67,31 @@ window.NETGUARD_CONTENT = {
     beschreibung: 'Diplomarbeit an der HTL Wien 3 Rennweg: Aufbau einer Fortinet '
       + 'Security Fabric in einer Laborumgebung und Evaluierung ihrer '
       + 'Erkennungsleistung an realem Schulnetzwerk-Traffic.',
-    url: 'https://htl3r-2146.github.io/NetGuard/',
+    // Adresse der veröffentlichten Seite (GitHub Pages). Wird für Sitemap,
+    // strukturierte Daten und Link-Vorschau verwendet. Ändert sich der
+    // Repository-Name, hier UND in jeder .html-Datei (canonical/og:url) anpassen.
+    url: 'https://htl3r-2144.github.io/DA_Webseite_NetGuard/',
 
-    // Schullogo. Datei liegt in assets/. Aktuell ein Platzhalter — ersetzen.
+    // Schullogo (offizielle Wortmarke der HTL Wien 3 Rennweg).
+    // Das Logo ist eine nachgezeichnete Grafik und braucht einen hellen
+    // Untergrund — im dunklen Modus bekommt es automatisch eine weiße Plakette.
     logo: './assets/logo-htl.svg',
+    logoMitSlogan: './assets/logo-htl-slogan.svg',   // Fußzeile
     logoAlt: 'HTL Wien 3 Rennweg',
-    logoBreite: 132,   // Pixel — muss zur Datei passen, verhindert Layout-Shift
-    logoHoehe: 36
+    logoBreite: 103,   // Pixel bei 40 px Höhe — verhindert Layout-Shift
+    logoHoehe: 40,
+    schulWebsite: 'https://www.htl.rennweg.at/',
+
+    /* Optionale, cookiefreie Besucherstatistik (z. B. Umami oder Plausible,
+       selbst gehostet). Standard: aus — es wird nichts geladen.
+       Zum Einschalten beide Felder ausfüllen, z. B.
+         skript: 'https://stats.example.at/script.js',
+         websiteId: '1234-abcd'
+       Solange leer, gilt der Hinweis „keine externen Ressourcen" in der
+       Fußzeile und in der Datenschutzerklärung. Beim Einschalten diese beiden
+       Stellen im Datenschutz-Text anpassen! Ohne Cookies ist kein Banner nötig.
+       Alternative ohne Skript: GitHub → Repository → Insights → Traffic. */
+    analytik: { skript: '', websiteId: '' }
   },
 
   /* ==========================================================================
@@ -135,7 +153,19 @@ window.NETGUARD_CONTENT = {
       nav: 'Kontakt',
       // ENTWURF – von Michal ersetzen
       kurz: { text: 'Fragen zum Projekt oder zur Dokumentation.', entwurf: true }
-    }
+    },
+    {
+      id: 'faq',
+      datei: './faq.html',
+      nav: 'FAQ',
+      // ENTWURF – von Michal ersetzen
+      kurz: { text: 'Antworten auf die häufigsten Fragen zum Projekt.', entwurf: true }
+    },
+
+    /* Seiten, die nur in der Fußzeile verlinkt sind (kein Menüpunkt, keine
+       Kachel, keine Nummer). nurFooter: true lässt sie im Menü aus. */
+    { id: 'impressum',   datei: './impressum.html',   nav: 'Impressum',   nurFooter: true },
+    { id: 'datenschutz', datei: './datenschutz.html', nav: 'Datenschutz', nurFooter: true }
   ],
 
   /* ==========================================================================
@@ -163,6 +193,24 @@ window.NETGUARD_CONTENT = {
       + 'Laborumgebung konfigurierten Fortinet Security Fabric auf realen '
       + 'Schulnetzwerktraffic übertragen, gemessen an Erkennungsrate, '
       + 'False-Positive-Rate und neu auftretenden Ereignistypen in FortiSIEM?',
+
+    // Die beiden Schaltflächen im Hero. "ziel" ist die id einer Seite aus
+    // "navigation". Die erste ist die Hauptaktion (farbig).
+    aktionen: [
+      { label: 'Architektur ansehen',   ziel: 'architektur' },
+      { label: 'Fortschritt verfolgen', ziel: 'fortschritt' }
+    ],
+
+    /* Statuskonsole rechts im Hero. Die Werte werden automatisch aus
+       "fortschritt" und "architektur" berechnet — hier stehen nur die
+       Beschriftungen. Der Befehl ist reine Gestaltung. */
+    konsole: {
+      befehl: 'netguard status',
+      zeilen: {
+        projekt: 'Projekt', phase: 'Phase', meilensteine: 'Meilensteine',
+        aktuell: 'Aktuell', komponenten: 'Fabric', stand: 'Stand'
+      }
+    },
 
     // Drei Kennzahlen unter dem Hero. Kurz halten — je 1-2 Wörter.
     kennzahlen: [
@@ -389,6 +437,7 @@ window.NETGUARD_CONTENT = {
   /* ==========================================================================
      FORTSCHRITT — Meilenstein-Timeline
      --------------------------------------------------------------------------
+     phase:   1 oder 2      — zu welcher Projektphase der Meilenstein gehört
      status:  'geplant'       — grau, offener Kreis
               'laufend'       — farbig, gefüllt; die Fortschrittslinie endet hier
               'abgeschlossen' — gefüllt mit Häkchen
@@ -402,6 +451,7 @@ window.NETGUARD_CONTENT = {
     meilensteine: [
       {
         id: 'fabric',
+        phase: 1,
         titel: 'Aufbau der Security Fabric',
         zeitraum: '09/2026 – 10/2026',
         status: 'geplant',
@@ -415,6 +465,7 @@ window.NETGUARD_CONTENT = {
       },
       {
         id: 'labor',
+        phase: 1,
         titel: 'Aufbau der Laborumgebung',
         zeitraum: '10/2026 – 12/2026',
         status: 'geplant',
@@ -427,6 +478,7 @@ window.NETGUARD_CONTENT = {
       },
       {
         id: 'angriffe',
+        phase: 1,
         titel: 'Angriffssimulation',
         zeitraum: '12/2026 – 01/2027',
         status: 'geplant',
@@ -440,6 +492,7 @@ window.NETGUARD_CONTENT = {
       },
       {
         id: 'passivanalyse',
+        phase: 2,
         titel: 'Passivanalyse Schulnetz-Traffic',
         zeitraum: '01/2027 – 03/2027',
         status: 'geplant',
@@ -452,6 +505,7 @@ window.NETGUARD_CONTENT = {
       },
       {
         id: 'vergleich',
+        phase: 2,
         titel: 'Vergleichsbericht',
         zeitraum: '03/2027 – 04/2027',
         status: 'geplant',
@@ -464,6 +518,7 @@ window.NETGUARD_CONTENT = {
       },
       {
         id: 'doku',
+        phase: 2,
         titel: 'Konfigurations- und Betriebsdokumentation',
         zeitraum: '04/2027',
         status: 'geplant',
@@ -477,6 +532,7 @@ window.NETGUARD_CONTENT = {
       },
       {
         id: 'abgabe',
+        phase: 2,
         titel: 'Abgabe',
         zeitraum: '05/2027',
         status: 'geplant',
@@ -561,6 +617,7 @@ window.NETGUARD_CONTENT = {
         name: 'David Mayerhofer',
         kuerzel: 'MAY',
         rolle: 'Projektleiter',
+        komponente: 'FortiManager',
         schwerpunkt: 'Projektkoordination, FortiManager (Policy-Packages, '
           + 'Backups, Audit-Trail), Datenschutzkoordination, Gesamtdokumentation',
         bild: null,
@@ -576,6 +633,7 @@ window.NETGUARD_CONTENT = {
         name: 'Michal Motola',
         kuerzel: 'MOT',
         rolle: 'Stellvertretender Projektleiter',
+        komponente: 'FortiGate',
         schwerpunkt: 'FortiGate (Policies, Zonen, IPS, SSL Inspection), '
           + 'AD-Infrastruktur, Labor-VMs, Angriffssimulation, Hardening',
         bild: null,
@@ -592,6 +650,7 @@ window.NETGUARD_CONTENT = {
         name: 'Paul Bauer',
         kuerzel: 'BAU',
         rolle: 'Projektmitarbeiter',
+        komponente: 'FortiSIEM',
         schwerpunkt: 'FortiSIEM (Deployment Supervisor und Worker, Correlation '
           + 'Rules, Alerting, CMDB)',
         bild: null,
@@ -607,6 +666,7 @@ window.NETGUARD_CONTENT = {
         name: 'Julian Heyderer',
         kuerzel: 'HEY',
         rolle: 'Projektmitarbeiter',
+        komponente: 'FortiAnalyzer',
         schwerpunkt: 'FortiAnalyzer (Logging, Reports, Forensik), '
           + 'Datenschutzkonzept und Anonymisierung',
         bild: null,
@@ -662,9 +722,230 @@ window.NETGUARD_CONTENT = {
   },
 
   /* ==========================================================================
+     FAQ — häufige Fragen
+     --------------------------------------------------------------------------
+     Jede Frage ist ein Eintrag { frage, antwort }. Reihenfolge = Anzeige.
+     Die Antworten sind Entwürfe aus dem Ansuchen — bitte prüfen.
+     ========================================================================== */
+  faq: {
+    titel: 'Häufige Fragen',
+    fragen: [
+      {
+        frage: 'Was ist eine Fortinet Security Fabric?',
+        antwort: { text: 'Ein Verbund aus mehreren Fortinet-Produkten, die ihre '
+          + 'Daten untereinander austauschen: Die FortiGate setzt Regeln im '
+          + 'Datenpfad durch, der FortiManager verwaltet die Konfiguration '
+          + 'zentral, der FortiAnalyzer sammelt und durchsucht Logdaten, und '
+          + 'FortiSIEM korreliert Ereignisse aus allen Quellen zu Incidents.',
+          entwurf: true }
+      },
+      {
+        frage: 'Wird in das Schulnetz eingegriffen?',
+        antwort: { text: 'Nein. Phase 2 ist eine rein passive Analyse von '
+          + 'Netzwerkverkehr. Es werden keine Verbindungen blockiert, keine '
+          + 'Geräte verändert und kein Betrieb beeinflusst.',
+          entwurf: true }
+      },
+      {
+        frage: 'Werden personenbezogene Daten verarbeitet?',
+        antwort: { text: 'Das Datenschutzkonzept sieht Anonymisierung vor, '
+          + 'bevor Daten ausgewertet werden. Auf dieser Website werden keine '
+          + 'Messdaten aus dem Schulnetz veröffentlicht, nur aggregierte '
+          + 'Kennzahlen wie Erkennungsraten je Szenario.',
+          entwurf: true }
+      },
+      {
+        frage: 'Welche Hardware wird verwendet?',
+        antwort: { text: 'Ein Cisco UCS-Server für die virtualisierte Labor- und '
+          + 'Fabric-Umgebung sowie eine physische FortiGate-Appliance. Beides '
+          + 'steht an der HTL Wien 3 Rennweg zur Verfügung.',
+          entwurf: true }
+      },
+      {
+        frage: 'Wie wird die Erkennungsleistung gemessen?',
+        antwort: { text: 'In Phase 1 werden fünf definierte Angriffsszenarien '
+          + 'ausgeführt; je Szenario wird dokumentiert, ob und wie die Fabric '
+          + 'sie erkennt, welche Alerts entstehen und wie viele False Positives '
+          + 'auftreten. In Phase 2 wird dieselbe Konfiguration an realem '
+          + 'Verkehr beobachtet und mit den Laborwerten verglichen.',
+          entwurf: true }
+      },
+      {
+        frage: 'Wann gibt es Ergebnisse?',
+        antwort: { text: 'Nach Abschluss der Angriffssimulation in Phase 1, '
+          + 'voraussichtlich ab Anfang 2027. Die Seite „Ergebnisse" wird dann '
+          + 'laufend ergänzt.',
+          entwurf: true }
+      },
+      {
+        frage: 'Was bleibt nach dem Projekt an der Schule?',
+        antwort: { text: 'Die aufgebaute Security Fabric samt dokumentierter '
+          + 'Konfiguration, Deployment-Anleitungen und Correlation Rules. '
+          + 'Nachfolgende Jahrgänge können darauf aufbauen.',
+          entwurf: true }
+      },
+      {
+        frage: 'Warum lädt diese Website keine externen Inhalte?',
+        antwort: 'Weil das zum Thema passt: Eine Seite über Netzwerksicherheit '
+          + 'soll selbst keine Daten an Dritte weitergeben. Schriften und Grafiken '
+          + 'liegen lokal, es gibt kein Tracking und keine Cookies.'
+      }
+    ]
+  },
+
+  /* ==========================================================================
+     RECHTLICHES — Impressum und Datenschutzerklärung
+     --------------------------------------------------------------------------
+     Beide Seiten bestehen aus Abschnitten { titel, absaetze: [ ... ] }.
+     Ein Absatz kann ein String sein oder { text, entwurf: true }.
+     Die Texte sind ENTWÜRFE — Anschrift, Ansprechpersonen und Formulierungen
+     bitte mit der Betreuung / Schulleitung abstimmen, bevor sie final sind.
+     ========================================================================== */
+  impressum: {
+    titel: 'Impressum',
+    einleitung: 'Offenlegung gemäß § 5 E-Commerce-Gesetz und § 25 Mediengesetz.',
+    stand: '09.09.2026',
+    abschnitte: [
+      {
+        titel: 'Medieninhaber und Herausgeber',
+        absaetze: [
+          { text: 'HTL Wien 3 Rennweg, Rennweg 89b, 1030 Wien, Österreich.',
+            entwurf: true },
+          { text: 'Für den Inhalt verantwortlich: Projektteam NetGuard — David '
+            + 'Mayerhofer, Michal Motola, Paul Bauer, Julian Heyderer '
+            + '(Diplomarbeit, Maturajahrgang 2027).', entwurf: true },
+          'Kontakt: über das Kontaktformular oder die dort angegebene Adresse.'
+        ]
+      },
+      {
+        titel: 'Zweck der Website',
+        absaetze: [
+          'Darstellung eines Diplomarbeitsprojekts im Rahmen der Ausbildung an '
+          + 'der Höheren Abteilung für Informationstechnologie. Diese Seite ist '
+          + 'ein Schülerprojekt und keine offizielle Website der HTL Wien 3 '
+          + 'Rennweg.'
+        ]
+      },
+      {
+        titel: 'Haftungsausschluss',
+        absaetze: [
+          'Die Inhalte wurden mit Sorgfalt erstellt. Für Richtigkeit, '
+          + 'Vollständigkeit und Aktualität wird keine Gewähr übernommen. '
+          + 'Alle Angaben zur Infrastruktur sind bewusst generalisiert.',
+          'Für Inhalte verlinkter externer Seiten sind ausschließlich deren '
+          + 'Betreiber verantwortlich. Zum Zeitpunkt der Verlinkung waren keine '
+          + 'Rechtsverstöße erkennbar.'
+        ]
+      },
+      {
+        titel: 'Urheberrecht und Marken',
+        absaetze: [
+          'Texte, Grafiken und Diagramme dieser Website stammen vom Projektteam '
+          + 'NetGuard, soweit nicht anders gekennzeichnet.',
+          { text: 'Das Logo der HTL Wien 3 Rennweg wird mit Zustimmung der Schule '
+            + 'verwendet.', entwurf: true },
+          'Fortinet, FortiGate, FortiManager, FortiAnalyzer und FortiSIEM sind '
+          + 'Marken der Fortinet, Inc. Cisco und Cisco UCS sind Marken der Cisco '
+          + 'Systems, Inc. Die Nennung dient ausschließlich der Beschreibung des '
+          + 'Projekts; es besteht keine Verbindung zu den Markeninhabern.',
+          'Verwendete Schriften: Inter, JetBrains Mono und IBM Plex Sans '
+          + 'Condensed, jeweils unter der SIL Open Font License 1.1. Die '
+          + 'Lizenztexte liegen im Ordner assets/fonts.'
+        ]
+      }
+    ]
+  },
+
+  datenschutz: {
+    titel: 'Datenschutzerklärung',
+    einleitung: 'Diese Website ist so gebaut, dass so wenig Daten wie möglich '
+      + 'anfallen. Hier steht, was trotzdem verarbeitet wird und warum.',
+    stand: '09.09.2026',
+    abschnitte: [
+      {
+        titel: 'Verantwortlicher',
+        absaetze: [
+          { text: 'HTL Wien 3 Rennweg, Rennweg 89b, 1030 Wien. Inhaltlich betreut '
+            + 'vom Projektteam NetGuard. Erreichbar über die Kontaktseite.',
+            entwurf: true }
+        ]
+      },
+      {
+        titel: 'Hosting (GitHub Pages)',
+        absaetze: [
+          'Die Seite wird über GitHub Pages ausgeliefert, einen Dienst der '
+          + 'GitHub, Inc., 88 Colin P Kelly Jr St, San Francisco, CA 94107, USA. '
+          + 'Beim Aufruf verarbeitet GitHub technisch notwendige Daten wie '
+          + 'IP-Adresse, Zeitpunkt, aufgerufene Datei, Browser und Betriebssystem '
+          + '(Server-Logs). Rechtsgrundlage ist das berechtigte Interesse an '
+          + 'einer sicheren und stabilen Bereitstellung (Art. 6 Abs. 1 lit. f '
+          + 'DSGVO).',
+          'GitHub ist unter dem EU-US Data Privacy Framework zertifiziert. '
+          + 'Details: GitHub Privacy Statement (docs.github.com).'
+        ]
+      },
+      {
+        titel: 'Keine Cookies, kein Tracking',
+        absaetze: [
+          'Diese Website setzt keine Cookies, bindet keine Analyse-, Werbe- '
+          + 'oder Social-Media-Dienste ein und lädt keine Inhalte von Dritten '
+          + 'nach. Schriften und Grafiken liegen auf demselben Server wie die '
+          + 'Seite selbst. Ein Cookie-Banner ist deshalb nicht erforderlich.',
+          'Einzige Ausnahme: Wählt man über den Schalter in der Kopfzeile ein '
+          + 'helles oder dunkles Farbschema, wird diese Wahl im lokalen Speicher '
+          + 'des Browsers (localStorage) abgelegt — ein einzelner Wert, ohne '
+          + 'Kennung, nur auf dem eigenen Gerät. Er ist für die gewünschte '
+          + 'Darstellung unbedingt erforderlich und kann in den '
+          + 'Browser-Einstellungen jederzeit gelöscht werden.'
+        ]
+      },
+      {
+        titel: 'Kontaktaufnahme',
+        absaetze: [
+          'Das Kontaktformular sendet nichts an einen Server. Beim Absenden '
+          + 'öffnet sich das Mailprogramm auf dem eigenen Gerät mit einem '
+          + 'vorbereiteten Entwurf; die Nachricht wird von dort verschickt. Die '
+          + 'übermittelten Angaben (Name, Betreff, Text, Absenderadresse) werden '
+          + 'ausschließlich zur Beantwortung der Anfrage verwendet und im '
+          + 'Schul-E-Mail-System gespeichert (Art. 6 Abs. 1 lit. b bzw. f DSGVO).'
+        ]
+      },
+      {
+        titel: 'Externe Links',
+        absaetze: [
+          'Links zu anderen Websites (z. B. zur Schule oder zu GitHub) sind als '
+          + 'solche erkennbar. Beim Anklicken gelten die Datenschutzbestimmungen '
+          + 'des jeweiligen Anbieters.'
+        ]
+      },
+      {
+        titel: 'Ihre Rechte',
+        absaetze: [
+          'Sie haben das Recht auf Auskunft, Berichtigung, Löschung, '
+          + 'Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch. '
+          + 'Wenn Sie glauben, dass die Verarbeitung Ihrer Daten gegen das '
+          + 'Datenschutzrecht verstößt, können Sie sich bei der österreichischen '
+          + 'Datenschutzbehörde beschweren (Barichgasse 40–42, 1030 Wien, '
+          + 'dsb.gv.at).'
+        ]
+      }
+    ]
+  },
+
+  /* ==========================================================================
+     FEHLERSEITE — wird bei einer unbekannten Adresse angezeigt (404)
+     ========================================================================== */
+  fehlerseite: {
+    titel: 'Seite nicht gefunden',
+    text: 'Unter dieser Adresse gibt es nichts. Vielleicht wurde die Seite '
+      + 'umbenannt oder der Link ist unvollständig. Diese Seiten gibt es:'
+  },
+
+  /* ==========================================================================
      FOOTER — Schule, Impressum, rechtliche Hinweise
      ========================================================================== */
   footer: {
+
     schule: 'HTL Wien 3 Rennweg',
     abteilung: 'Höhere Abteilung für Informationstechnologie',
     maturajahrgang: '2027',
@@ -674,18 +955,11 @@ window.NETGUARD_CONTENT = {
     klasse: '4AX',
     klasseAnzeigen: false,
 
-    // ENTWURF – von Michal ersetzen  ///  ANSCHRIFT UNBEDINGT PRÜFEN
-    impressum: {
-      entwurf: true,
-      titel: 'Impressum und Offenlegung gemäß § 5 ECG',
-      medieninhaber: 'HTL Wien 3 Rennweg',
-      anschrift: 'Rennweg 89b, 1030 Wien, Österreich',
-      verantwortlich: 'Projektteam NetGuard — David Mayerhofer, Michal Motola, '
-        + 'Paul Bauer, Julian Heyderer',
-      zweck: 'Darstellung eines Diplomarbeitsprojekts im Rahmen der Ausbildung.',
-      hinweis: 'Diese Seite ist ein Schülerprojekt und keine offizielle Website '
-        + 'der HTL Wien 3 Rennweg.'
-    },
+    // ENTWURF – ANSCHRIFT UNBEDINGT PRÜFEN. Das vollständige Impressum steht
+    // oben unter "impressum" und hat eine eigene Seite.
+    anschrift: { text: 'Rennweg 89b, 1030 Wien', entwurf: true },
+    hinweis: 'Diplomarbeitsprojekt — keine offizielle Website der HTL Wien 3 Rennweg.',
+    quelltext: 'https://github.com/htl3r-2144/DA_Webseite_NetGuard',
 
     // Pflichthinweis — nicht entfernen.
     generalisierungshinweis: 'Alle dargestellten Konfigurationen sind '

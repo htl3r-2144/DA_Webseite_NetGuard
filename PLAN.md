@@ -1,7 +1,7 @@
 # NetGuard — Projektwebsite · Planungsdokument
 
 **Stand:** 28.07.2026 · **Status:** umgesetzt, siehe Abschnitt 10
-**Ziel-URL:** `https://htl3r-2146.github.io/NetGuard/`
+**Ziel-URL:** `https://htl3r-2144.github.io/DA_Webseite_NetGuard/` *(Relaunch 09.09.2026, siehe Abschnitt 11)*
 **Projektordner:** `C:\Users\Michal\Claude Code\NetGuard\` *(mit dem Repo-Namen benannt, damit Ordner und Repository beim Push identisch heißen)*
 
 ---
@@ -356,3 +356,27 @@ Implementiert am 28.07.2026, danach auf Multi-Page und hellen Grund umgestellt. 
 * **Audit:** keine externe URL in einem ladenden Attribut (nur `rel="canonical"` und `og:*`, beides Meta), kein führender Slash, keine E-Mail-Adresse im Klartext, keine VLAN-, IP- oder Klassenangabe im Inhalt
 
 Screenshots waren nicht möglich — der Vorschau-Bereich hat keine Frames geliefert. Die Prüfung lief deshalb über Geometrie- und Kontrastmessung im laufenden DOM statt über Bilder.
+
+
+---
+
+## 11. Relaunch 09.09.2026 — Gewebe, Logo, Launch-Checkliste
+
+Umgesetzt nach der Checkliste „20 things to tell Claude before launching":
+
+* **Gestaltung:** neue Idee *das Gewebe* (siehe Kopf von `css/styles.css`).
+  Akzent ist jetzt das Rot des Schullogos statt Cyan; Statusfarben blau/grün
+  bleiben getrennt. Überschriften in IBM Plex Sans Condensed (lokal, OFL).
+  Signatur-Elemente: animiertes Gewebe im Hero, Statuskonsole mit berechnetem
+  Projektstand, laufende Datenpakete im Architekturdiagramm, „Heute"-Marke in
+  der Timeline (laut Zeitplan), Lesefortschritt in der Kopfzeile.
+* **Logo:** offizielle Wortmarke der HTL Wien 3 Rennweg in Kopf- und Fußzeile.
+* **Neue Seiten:** FAQ (mit FAQPage-JSON-LD), Impressum, Datenschutz, 404.
+* **SEO/Share:** eindeutige Titel und Beschreibungen, Canonicals auf die echte
+  Pages-URL, robots.txt, sitemap.xml, JSON-LD (WebSite, Organisation,
+  Breadcrumbs), neues og-image.png, Icons + Web-Manifest.
+* **Mobil:** Burger-Menü unter 900 px.
+* **Formular:** eigene Validierung mit Fehlertexten und `aria-invalid`.
+* **Analytics:** bewusst nicht aktiv; Option `meta.analytik` für ein
+  cookiefreies Skript vorbereitet. Kein Cookie-Banner nötig.
+* Abschnitt 0.3 ist damit erledigt; das Impressum hat eine eigene Seite.

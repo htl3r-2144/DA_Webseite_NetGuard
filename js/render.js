@@ -26,6 +26,7 @@
   var ENTWURF_ANZEIGEN = new URLSearchParams(window.location.search).has('entwurf');
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var SVG_NS = 'http://www.w3.org/2000/svg';
+  var HEUTE = new Date();
 
   document.documentElement.classList.add('js');
 
@@ -47,6 +48,8 @@
       ? ' <span class="entwurf-badge">Entwurf</span>' : '';
   }
   function tx(v) { return esc(t(v)) + badge(v); }
+  /** Wie tx, aber Zeilenumbrüche im Text werden zu <br>. */
+  function txbr(v) { return esc(t(v)).replace(/\n/g, '<br>') + badge(v); }
 
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $$(sel, root) {
@@ -59,10 +62,20 @@
     }
     return e;
   }
+  function datumDE(d) {
+    return ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2)
+      + '.' + d.getFullYear();
+  }
 
   var PFEIL = '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">'
     + '<path d="M4 10h11M11 5.5 15.5 10 11 14.5" fill="none" stroke="currentColor" '
     + 'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  /* Das Gewebe-Zeichen: drei Kett- und drei Schussfäden — das Motiv der Seite. */
+  var WEAVE = '<svg class="weave" viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
+    + '<path d="M2 4h12M2 8h12M2 12h12M4 2v12M8 2v12M12 2v12" fill="none" '
+    + 'stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>'
+    + '<circle cx="8" cy="8" r="1.9" fill="currentColor"/></svg>';
 
   /* -- Theme-Umschalter ----------------------------------------------------
      Läuft neben prefers-color-scheme: ohne gespeicherte Wahl folgt die Seite
@@ -84,13 +97,11 @@
   function gespeichertesTheme() {
     try { return window.localStorage.getItem(THEME_KEY); } catch (e) { return null; }
   }
-
   function effektivesTheme() {
     var g = gespeichertesTheme();
     if (g === 'light' || g === 'dark') return g;
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
-
   function wendeTheme(modus) {
     document.documentElement.setAttribute('data-theme', modus);
     var btn = $('#theme-toggle');
@@ -100,8 +111,9 @@
     btn.setAttribute('aria-pressed', hell ? 'false' : 'true');
     btn.setAttribute('aria-label', hell
       ? 'Dunkles Farbschema aktivieren' : 'Helles Farbschema aktivieren');
+    var meta = $('meta[name="theme-color"]:not([media])');
+    if (meta) meta.setAttribute('content', hell ? '#F2F4F6' : '#0B0F14');
   }
-
   function initThemeToggle() {
     var btn = $('#theme-toggle');
     if (!btn) return;
@@ -114,9 +126,17 @@
     });
   }
 
-  /* Alle Seiten außer der Startseite — für Nummerierung und Blättern. */
+  /* -- Navigation: Hilfen -------------------------------------------------- */
+
+  /** Menüseiten: alles außer Startseite und Fußzeilen-Seiten. */
   function unterseiten() {
-    return C.navigation.filter(function (s) { return s.id !== 'index'; });
+    return C.navigation.filter(function (s) { return s.id !== 'index' && !s.nurFooter; });
+  }
+  function hauptseiten() {
+    return C.navigation.filter(function (s) { return !s.nurFooter; });
+  }
+  function footerseiten() {
+    return C.navigation.filter(function (s) { return s.nurFooter; });
   }
   function seitenNr(id) {
     var u = unterseiten();
@@ -124,20 +144,63 @@
     return 0;
   }
   function zweistellig(n) { return ('0' + n).slice(-2); }
+  function eintragFuer(id) {
+    return C.navigation.filter(function (s) { return s.id === id; })[0] || {};
+  }
+  function dateiFuer(id) { return eintragFuer(id).datei || './index.html'; }
+
+  /* -- Projektstand (für Konsole und Timeline) ----------------------------- */
+
+  /** Zerlegt '09/2026 – 10/2026' oder '04/2027' in Start- und Enddatum. */
+  function zeitraumParsen(s) {
+    var m = String(s).match(/(\d{2})\/(\d{4})/g);
+    if (!m) return null;
+    var a = m[0].split('/'), b = (m[1] || m[0]).split('/');
+    var von = new Date(+a[1], +a[0] - 1, 1);
+    var bis = new Date(+b[1], +b[0], 0, 23, 59, 59);   // letzter Tag des Monats
+    return { von: von, bis: bis };
+  }
+  function laufendLautPlan(m) {
+    var z = zeitraumParsen(m.zeitraum);
+    return !!(z && HEUTE >= z.von && HEUTE <= z.bis);
+  }
+
+  function projektstand() {
+    var ms = C.fortschritt.meilensteine;
+    var fertig = ms.filter(function (m) { return m.status === 'abgeschlossen'; }).length;
+    var aktuell = ms.filter(function (m) { return m.status === 'laufend'; })[0]
+      || ms.filter(laufendLautPlan)[0]
+      || ms.filter(function (m) { return m.status !== 'abgeschlossen'; })[0]
+      || ms[ms.length - 1];
+    var phase = aktuell && aktuell.phase ? aktuell.phase : 1;
+    var phaseEintrag = C.phasen.liste.filter(function (p) { return p.nummer === phase; })[0];
+    return {
+      fertig: fertig, gesamt: ms.length, aktuell: aktuell,
+      phase: phase, phaseKurz: phaseEintrag ? phaseEintrag.kurz : ''
+    };
+  }
 
   /* -- Kopfzeile ----------------------------------------------------------- */
 
   function renderHeader() {
     var m = C.meta;
     $('#site-header').innerHTML =
-      '<div class="wrap">'
-      + '<a class="brand" href="./index.html">'
-      +   '<img src="' + esc(m.logo) + '" alt="' + esc(m.logoAlt) + '" '
-      +   'width="' + esc(m.logoBreite) + '" height="' + esc(m.logoHoehe) + '">'
-      +   '<span class="brand-name">' + esc(C.hero.projektname) + '</span>'
+      '<span class="scroll-progress" id="scroll-progress" aria-hidden="true"></span>'
+      + '<div class="wrap">'
+      + '<a class="brand" href="./index.html" aria-label="' + esc(C.hero.projektname)
+      +   ' — zur Startseite">'
+      +   '<span class="brand-logo"><img src="' + esc(m.logo) + '" alt="' + esc(m.logoAlt) + '" '
+      +   'width="' + esc(m.logoBreite) + '" height="' + esc(m.logoHoehe) + '" '
+      +   'decoding="async"></span>'
+      +   '<span class="brand-name">' + WEAVE + esc(C.hero.projektname) + '</span>'
       + '</a>'
-      + '<nav class="site-nav" aria-label="Hauptnavigation"><ul>'
-      + C.navigation.map(function (s) {
+      + '<button type="button" class="nav-toggle" id="nav-toggle" '
+      +   'aria-expanded="false" aria-controls="site-nav" aria-label="Menü öffnen">'
+      +   '<span class="nav-toggle-bar" aria-hidden="true"></span>'
+      +   '<span class="nav-toggle-bar" aria-hidden="true"></span>'
+      + '</button>'
+      + '<nav class="site-nav" id="site-nav" aria-label="Hauptnavigation"><ul>'
+      + hauptseiten().map(function (s) {
           var aktiv = s.id === SEITE;
           var nr = s.id === 'index' ? '' : '<span class="nr">'
             + zweistellig(seitenNr(s.id)) + '</span>';
@@ -149,6 +212,51 @@
       + '<button type="button" class="theme-toggle" id="theme-toggle"></button>'
       + '</div>';
     initThemeToggle();
+    initNav();
+    initScrollProgress();
+  }
+
+  function initNav() {
+    var header = $('#site-header');
+    var btn = $('#nav-toggle');
+    if (!btn) return;
+    function setze(offen) {
+      header.classList.toggle('nav-open', offen);
+      btn.setAttribute('aria-expanded', offen ? 'true' : 'false');
+      btn.setAttribute('aria-label', offen ? 'Menü schließen' : 'Menü öffnen');
+      document.body.classList.toggle('nav-offen', offen);
+    }
+    btn.addEventListener('click', function () {
+      setze(!header.classList.contains('nav-open'));
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && header.classList.contains('nav-open')) {
+        setze(false); btn.focus();
+      }
+    });
+    document.addEventListener('click', function (e) {
+      if (header.classList.contains('nav-open') && !header.contains(e.target)) setze(false);
+    });
+    window.matchMedia('(min-width: 901px)').addEventListener('change', function (e) {
+      if (e.matches) setze(false);
+    });
+  }
+
+  function initScrollProgress() {
+    var bar = $('#scroll-progress');
+    if (!bar) return;
+    var tick = false;
+    function update() {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      var p = max > 0 ? Math.min(1, h.scrollTop / max) : 0;
+      bar.style.transform = 'scaleX(' + p + ')';
+      tick = false;
+    }
+    window.addEventListener('scroll', function () {
+      if (!tick) { tick = true; window.requestAnimationFrame(update); }
+    }, { passive: true });
+    update();
   }
 
   /* -- Seitenkopf ---------------------------------------------------------- */
@@ -166,11 +274,9 @@
     }
     if (id === 'fortschritt') {
       var f = C.fortschritt;
-      var fertig = f.meilensteine.filter(function (m) {
-        return m.status === 'abgeschlossen';
-      }).length;
+      var st = projektstand();
       return [['Zeitraum', f.zeitraum.von + ' – ' + f.zeitraum.bis],
-              ['Meilensteine', fertig + ' von ' + f.meilensteine.length + ' erreicht']];
+              ['Meilensteine', st.fertig + ' von ' + st.gesamt + ' erreicht']];
     }
     if (id === 'ergebnisse') {
       return [['Status', C.ergebnisse.status === 'verfuegbar' ? 'Messwerte vorhanden' : C.ergebnisse.hinweis],
@@ -183,19 +289,29 @@
     if (id === 'kontakt') {
       return [['Antwort', 'per E-Mail'], ['Datenübertragung', 'keine']];
     }
+    if (id === 'faq') {
+      return [['Fragen', String(C.faq.fragen.length)], ['Stand', datumDE(HEUTE)]];
+    }
+    if (id === 'impressum' || id === 'datenschutz') {
+      return [['Stand', C[id].stand || datumDE(HEUTE)], ['Cookies', 'keine']];
+    }
     return [];
   }
 
-  function seitenkopf(titel, lead) {
+  function seitenkopf(titel, lead, opts) {
+    opts = opts || {};
     var nr = seitenNr(SEITE);
     var gesamt = unterseiten().length;
     var meta = metaFuer(SEITE);
+    var index = nr
+      ? '<p class="doc-index" data-auftritt>' + WEAVE + 'Dokument '
+        + '<span class="aktiv">' + zweistellig(nr) + '</span>'
+        + '<span class="strich"></span>' + zweistellig(gesamt) + '</p>'
+      : '<p class="doc-index" data-auftritt>' + WEAVE + esc(opts.kicker || 'Rechtliches') + '</p>';
 
     return '<header class="page-head">'
       + '<div class="wrap">'
-      +   '<p class="doc-index" data-auftritt>Dokument '
-      +     '<span class="aktiv">' + zweistellig(nr) + '</span>'
-      +     '<span class="strich"></span>' + zweistellig(gesamt) + '</p>'
+      +   index
       +   '<h1 data-auftritt>' + esc(titel) + '</h1>'
       +   (lead ? '<p class="page-lead" data-auftritt>' + tx(lead) + '</p>' : '')
       +   (meta.length
@@ -211,6 +327,48 @@
 
   /* -- Startseite ---------------------------------------------------------- */
 
+  function renderKonsole() {
+    var k = C.hero.konsole;
+    var st = projektstand();
+    var z = k.zeilen;
+    var komponenten = C.architektur.komponenten.map(function (x) { return x.name; });
+
+    function zeile(label, wert, extra) {
+      return '<span class="k-line' + (extra ? ' ' + extra : '') + '">'
+        + '<span class="k-key">' + esc(label) + '</span>'
+        + '<span class="k-val">' + wert + '</span></span>';
+    }
+    var aktuell = st.aktuell
+      ? esc(st.aktuell.titel) + ' <span class="k-dim">' + esc(st.aktuell.zeitraum) + '</span>'
+      : '—';
+
+    return '<figure class="konsole" data-auftritt aria-label="Projektstatus">'
+      + '<figcaption class="k-bar"><span class="k-dot" aria-hidden="true"></span>'
+      +   '<span class="k-title">' + esc(C.hero.projektname.toLowerCase()) + ' · status</span>'
+      +   '<span class="k-live"><span class="k-pulse" aria-hidden="true"></span>live</span>'
+      + '</figcaption>'
+      + '<div class="k-body">'
+      +   '<span class="k-line k-cmd"><span class="k-prompt" aria-hidden="true">$</span> '
+      +     esc(k.befehl) + '</span>'
+      +   zeile(z.projekt, esc(C.hero.projektname) + ' <span class="k-dim">'
+      +     esc(C.footer.maturajahrgang) + '</span>')
+      +   zeile(z.phase, esc(st.phase) + ' <span class="k-dim">· ' + esc(st.phaseKurz) + '</span>')
+      +   zeile(z.meilensteine, '<span class="k-meter" aria-hidden="true">'
+      +     C.fortschritt.meilensteine.map(function (m) {
+              return '<i data-status="' + esc(m.status) + '"></i>';
+            }).join('')
+      +     '</span> ' + esc(st.fertig) + '/' + esc(st.gesamt) + ' abgeschlossen')
+      +   zeile(z.aktuell, aktuell)
+      +   zeile(z.komponenten, komponenten.map(function (n) {
+              return '<span class="k-tag">' + esc(n) + '</span>';
+            }).join(''))
+      +   zeile(z.stand, esc(datumDE(HEUTE)))
+      +   '<span class="k-line k-cmd"><span class="k-prompt" aria-hidden="true">$</span> '
+      +     '<span class="k-cursor" aria-hidden="true"></span></span>'
+      + '</div>'
+      + '</figure>';
+  }
+
   function renderIndex() {
     var h = C.hero;
     var a = C.ausgangssituation;
@@ -218,18 +376,31 @@
     var absMark = (ENTWURF_ANZEIGEN && a.absaetze.entwurf)
       ? ' <span class="entwurf-badge">Entwurf</span>' : '';
 
-    return '<section class="hero">'
+    var aktionen = (h.aktionen || []).map(function (ak, i) {
+      return '<a class="btn ' + (i === 0 ? 'btn-primary' : 'btn-secondary') + '" href="'
+        + esc(dateiFuer(ak.ziel)) + '">' + esc(ak.label) + (i === 0 ? PFEIL : '') + '</a>';
+    }).join('');
+
+    return '<section class="hero" aria-labelledby="h-hero">'
+      + '<svg class="fabric" id="fabric-mesh" aria-hidden="true" focusable="false"></svg>'
+      + '<div class="wrap hero-grid">'
+      +   '<div class="hero-text">'
+      +     '<p class="hero-kicker" data-auftritt>' + WEAVE + 'Diplomarbeit · ' + esc(C.footer.schule)
+      +       ' · Maturajahrgang ' + esc(C.footer.maturajahrgang) + '</p>'
+      +     '<h1 id="h-hero" data-auftritt>' + esc(h.projektname) + '</h1>'
+      +     '<p class="hero-antragstitel" data-auftritt>' + esc(h.antragstitel) + '</p>'
+      +     '<p class="hero-untertitel" data-auftritt>' + tx(h.untertitel) + '</p>'
+      +     '<div class="hero-aktionen" data-auftritt>' + aktionen + '</div>'
+      +   '</div>'
+      +   renderKonsole()
+      + '</div>'
+      + '</section>'
+
+      + '<section class="frage-band" aria-labelledby="h-frage">'
       + '<div class="wrap">'
-      +   '<p class="hero-kicker" data-auftritt>Diplomarbeit · ' + esc(C.footer.schule)
-      +     ' · Maturajahrgang ' + esc(C.footer.maturajahrgang) + '</p>'
-      +   '<h1 data-auftritt>' + esc(h.projektname) + '</h1>'
-      +   '<p class="hero-antragstitel" data-auftritt>' + esc(h.antragstitel) + '</p>'
-      +   '<p class="hero-untertitel" data-auftritt>' + tx(h.untertitel) + '</p>'
-      +   '<figure class="frage" data-auftritt>'
-      +     '<span class="label">Zentrale Forschungsfrage</span>'
-      +     '<blockquote><q>' + esc(h.forschungsfrage) + '</q></blockquote>'
-      +   '</figure>'
-      +   '<ul class="kennzahlen" data-auftritt>'
+      +   '<h2 id="h-frage" class="label">Zentrale Forschungsfrage</h2>'
+      +   '<blockquote class="frage"><p>' + esc(h.forschungsfrage) + '</p></blockquote>'
+      +   '<ul class="kennzahlen">'
       +     h.kennzahlen.map(function (k) {
             return '<li><span class="wert">' + esc(k.wert) + '</span>'
               + '<span class="txt">' + esc(k.label) + '</span></li>';
@@ -239,9 +410,9 @@
       + '</section>'
 
       + '<section class="block" aria-labelledby="h-ausgang">'
-      + '<div class="wrap">'
-      +   '<div class="rubrik"><h2 id="h-ausgang">' + esc(a.titel) + '</h2></div>'
-      +   '<div class="prose">'
+      + '<div class="wrap split">'
+      +   '<div class="split-head"><h2 id="h-ausgang">' + esc(a.titel) + '</h2></div>'
+      +   '<div class="prose prose-lg">'
       +     a.absaetze.texte.map(function (p, i) {
             return '<p>' + esc(p) + (i === 0 ? absMark : '') + '</p>';
           }).join('')
@@ -251,7 +422,8 @@
 
       + '<section class="block" aria-labelledby="h-index">'
       + '<div class="wrap">'
-      +   '<div class="rubrik"><h2 id="h-index">Inhalt</h2></div>'
+      +   '<div class="rubrik"><h2 id="h-index">Inhalt</h2>'
+      +     '<span class="rubrik-meta">' + unterseiten().length + ' Dokumente</span></div>'
       +   '<div class="index-grid">'
       +     unterseiten().map(function (s, i) {
             return '<a class="tile" href="' + esc(s.datei) + '" data-auftritt>'
@@ -264,6 +436,78 @@
       +   '</div>'
       + '</div>'
       + '</section>';
+  }
+
+  /** Das Gewebe im Hero: Kett- und Schussfäden, Knoten an den Kreuzungen,
+      Pakete, die an den Fäden entlanglaufen, und Knoten, die kurz aufleuchten.
+      Reines SVG, keine Bibliothek. Bei reduzierter Bewegung steht alles still. */
+  function initFabric() {
+    var svg = $('#fabric-mesh');
+    if (!svg) return;
+    var W = 760, H = 560, STEP = 76, OFF = 22;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.setAttribute('preserveAspectRatio', 'xMaxYMin slice');
+
+    var xs = [], ys = [], x, y;
+    for (x = OFF; x <= W; x += STEP) xs.push(x);
+    for (y = OFF; y <= H; y += STEP) ys.push(y);
+
+    var faeden = svgEl('g', { class: 'f-threads' });
+    xs.forEach(function (px) {
+      faeden.appendChild(svgEl('line', { x1: px, y1: 0, x2: px, y2: H }));
+    });
+    ys.forEach(function (py) {
+      faeden.appendChild(svgEl('line', { x1: 0, y1: py, x2: W, y2: py }));
+    });
+    svg.appendChild(faeden);
+
+    /* Knoten: nur jede zweite Kreuzung — das ergibt das Bindungsmuster. */
+    var knoten = svgEl('g', { class: 'f-nodes' });
+    var alle = [];
+    xs.forEach(function (px, i) {
+      ys.forEach(function (py, j) {
+        if ((i + j) % 2) return;
+        var n = svgEl('circle', { cx: px, cy: py, r: 2.2 });
+        knoten.appendChild(n);
+        alle.push({ x: px, y: py, el: n });
+      });
+    });
+    svg.appendChild(knoten);
+
+    /* Deterministische "Zufalls"-Folge, damit es bei jedem Laden gleich aussieht. */
+    var seed = 7;
+    function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+
+    /* Aufleuchtende Knoten (Ereignisse) */
+    var heiss = svgEl('g', { class: 'f-hot' });
+    for (var k = 0; k < 7; k++) {
+      var p = alle[Math.floor(rnd() * alle.length)];
+      var ring = svgEl('circle', { cx: p.x, cy: p.y, r: 3, class: 'f-ring' });
+      ring.style.animationDelay = (rnd() * 9).toFixed(2) + 's';
+      heiss.appendChild(ring);
+    }
+    svg.appendChild(heiss);
+
+    if (REDUCED) return;
+
+    /* Pakete: laufen einen Faden entlang, biegen an einer Kreuzung ab. */
+    var pakete = svgEl('g', { class: 'f-packets' });
+    for (var q = 0; q < 6; q++) {
+      var horizontalZuerst = rnd() > 0.5;
+      var a = xs[Math.floor(rnd() * xs.length)], b = ys[Math.floor(rnd() * ys.length)];
+      var d = horizontalZuerst
+        ? 'M' + (-20) + ',' + b + ' H' + a + ' V' + (H + 20)
+        : 'M' + a + ',' + (-20) + ' V' + b + ' H' + (W + 20);
+      var dot = svgEl('circle', { r: 3.2, class: 'f-packet' });
+      var mot = svgEl('animateMotion', {
+        dur: (7 + rnd() * 7).toFixed(1) + 's',
+        begin: (rnd() * 8).toFixed(1) + 's',
+        repeatCount: 'indefinite', path: d
+      });
+      dot.appendChild(mot);
+      pakete.appendChild(dot);
+    }
+    svg.appendChild(pakete);
   }
 
   /* -- Architektur --------------------------------------------------------- */
@@ -307,7 +551,7 @@
     var a = C.architektur;
     return '<section class="block">'
       + '<div class="wrap">'
-      +   '<div class="prose" style="margin-bottom:var(--sp-6)"><p>' + tx(a.einleitung) + '</p></div>'
+      +   '<div class="prose prose-lg" style="margin-bottom:var(--sp-6)"><p>' + tx(a.einleitung) + '</p></div>'
       +   '<div class="arch-layout">'
       +     '<figure class="arch-figure" data-auftritt>'
       +       '<svg id="arch-svg" xmlns="http://www.w3.org/2000/svg"></svg>'
@@ -364,6 +608,10 @@
       };
       if (gestrichelt) attrs['stroke-dasharray'] = '3 3';
       svg.appendChild(svgEl('path', attrs));
+      if (akzent && !REDUCED) {
+        /* Laufende Datenpakete auf den Fabric-Verbindungen */
+        svg.appendChild(svgEl('path', { d: d, class: 'flow-pulse' }));
+      }
     }
     linie('M290,156 V192 H440 V230');
     linie('M670,156 V192 H580 V230');
@@ -388,10 +636,13 @@
       g.appendChild(svgEl('rect', {
         x: p.x, y: p.y, width: p.w, height: p.h, rx: 10, class: 'node-box'
       }));
-      var n = svgEl('text', { x: p.x + 16, y: p.y + 31, class: 'node-name' });
+      g.appendChild(svgEl('rect', {
+        x: p.x, y: p.y + 10, width: 3, height: p.h - 20, rx: 1.5, class: 'node-mark'
+      }));
+      var n = svgEl('text', { x: p.x + 18, y: p.y + 31, class: 'node-name' });
       n.textContent = k.name;
       g.appendChild(n);
-      var r = svgEl('text', { x: p.x + 16, y: p.y + 52, class: 'node-rolle' });
+      var r = svgEl('text', { x: p.x + 18, y: p.y + 52, class: 'node-rolle' });
       r.textContent = k.rolle;
       g.appendChild(r);
       svg.appendChild(g);
@@ -407,7 +658,7 @@
       if (!k) return;
       $('#arch-detail').innerHTML =
         '<span class="rolle">' + esc(k.rolle) + '</span>'
-        + '<h3>' + esc(k.name) + '</h3>'
+        + '<h2>' + esc(k.name) + '</h2>'
         + '<p>' + tx(k.beschreibung) + '</p>';
       $$('#arch-svg .node').forEach(function (n) {
         var an = n.getAttribute('data-id') === id;
@@ -461,20 +712,25 @@
 
       + '<section class="block" aria-labelledby="h-szen">'
       + '<div class="wrap">'
-      +   '<div class="rubrik"><h2 id="h-szen">' + esc(p.szenarien.titel) + '</h2></div>'
-      +   '<ul class="chips">'
-      +     p.szenarien.liste.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('')
-      +   '</ul>'
+      +   '<div class="rubrik"><h2 id="h-szen">' + esc(p.szenarien.titel) + '</h2>'
+      +     '<span class="rubrik-meta">' + p.szenarien.liste.length + ' Szenarien</span></div>'
+      +   '<ol class="szenarien">'
+      +     p.szenarien.liste.map(function (s, i) {
+            return '<li><span class="nr">' + zweistellig(i + 1) + '</span>' + esc(s) + '</li>';
+          }).join('')
+      +   '</ol>'
       + '</div>'
       + '</section>'
 
       + '<section class="block" aria-labelledby="h-vgl">'
-      + '<div class="wrap">'
-      +   '<div class="rubrik"><h2 id="h-vgl">' + esc(p.vergleich.titel) + '</h2></div>'
-      +   '<div class="prose"><p>' + tx(p.vergleich.beschreibung) + '</p></div>'
-      +   '<ul class="punkte" style="margin-top:var(--sp-4)">'
-      +     p.vergleich.punkte.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('')
-      +   '</ul>'
+      + '<div class="wrap split">'
+      +   '<div class="split-head"><h2 id="h-vgl">' + esc(p.vergleich.titel) + '</h2></div>'
+      +   '<div>'
+      +     '<div class="prose prose-lg"><p>' + tx(p.vergleich.beschreibung) + '</p></div>'
+      +     '<ul class="punkte" style="margin-top:var(--sp-5)">'
+      +       p.vergleich.punkte.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('')
+      +     '</ul>'
+      +   '</div>'
       + '</div>'
       + '</section>';
   }
@@ -495,15 +751,19 @@
       + '<div class="timeline-arrow" id="timeline-arrow" aria-hidden="true">'
       + '<svg viewBox="0 0 10 10" focusable="false"><path d="M1 1 L9 1 L5 9 Z" '
       + 'fill="currentColor"/></svg></div>'
-      + f.meilensteine.map(function (m) {
+      + f.meilensteine.map(function (m, i) {
           var st = STATUS_TEXT[m.status] || m.status;
+          var heute = laufendLautPlan(m)
+            ? '<span class="heute" title="Laut Zeitplan aktueller Abschnitt">Heute</span>' : '';
           return '<article class="meilenstein" data-status="' + esc(m.status) + '">'
             + '<span class="punkt" aria-hidden="true">'
             +   (m.status === 'abgeschlossen' ? haken : '') + '</span>'
             + '<div class="meilenstein-head">'
+            +   '<span class="ms-nr">' + zweistellig(i + 1) + '</span>'
             +   '<h2>' + esc(m.titel) + '</h2>'
             +   '<span class="zeitraum">' + esc(m.zeitraum) + '</span>'
             +   '<span class="status">' + esc(st) + '</span>'
+            +   heute
             + '</div>'
             + '<p>' + tx(m.beschreibung) + '</p>'
             + '</article>';
@@ -534,9 +794,6 @@
       if (s === 'abgeschlossen' || s === 'laufend') ziel = i;
     });
 
-    /* Position relativ zum Timeline-Container. Bewusst über
-       getBoundingClientRect: die Punkte sind absolut innerhalb ihres
-       Meilensteins positioniert, offsetTop lieferte für jeden denselben Wert. */
     var hoehe = 0;
     if (ziel >= 0) {
       var punkt = $('.punkt', items[ziel]);
@@ -561,14 +818,14 @@
       + '<div class="wrap">'
       +   '<p class="ergebnis-status"><span class="dot" aria-hidden="true"></span>'
       +     (offen ? esc(e.hinweis) : 'Messwerte verfügbar') + '</p>'
-      +   (offen ? '<div class="prose"><p>' + tx(e.platzhalter) + '</p></div>' : '')
+      +   (offen ? '<div class="prose prose-lg"><p>' + tx(e.platzhalter) + '</p></div>' : '')
       +   '<div id="ergebnisse-charts"></div>'
       + '</div>'
       + '</section>'
       + '<section class="block" aria-labelledby="h-verw">'
-      + '<div class="wrap">'
-      +   '<div class="rubrik"><h2 id="h-verw">Verwertung</h2></div>'
-      +   '<div class="prose"><p>' + tx(e.verwertung) + '</p></div>'
+      + '<div class="wrap split">'
+      +   '<div class="split-head"><h2 id="h-verw">Verwertung</h2></div>'
+      +   '<div class="prose prose-lg"><p>' + tx(e.verwertung) + '</p></div>'
       + '</div>'
       + '</section>';
   }
@@ -597,14 +854,16 @@
       +   '<div class="team-grid">'
       +     team.mitglieder.map(function (m) {
             var avatar = m.bild
-              ? '<img class="avatar" src="' + esc(m.bild) + '" width="54" height="54" '
-                + 'loading="lazy" alt="Porträtfoto von ' + esc(m.name) + '">'
+              ? '<img class="avatar" src="' + esc(m.bild) + '" width="56" height="56" '
+                + 'loading="lazy" decoding="async" alt="Porträtfoto von ' + esc(m.name) + '">'
               : '<span class="avatar" aria-hidden="true">' + esc(initialen(m.name)) + '</span>';
             return '<article class="person card" data-auftritt>'
               + '<div class="person-head">' + avatar
               +   '<div><h2>' + esc(m.name) + '</h2>'
               +   '<span class="rolle">' + esc(m.rolle) + ' · ' + esc(m.kuerzel) + '</span></div>'
               + '</div>'
+              + (m.komponente
+                  ? '<span class="komponente">' + WEAVE + esc(m.komponente) + '</span>' : '')
               + '<p class="bio">' + tx(m.bio) + '</p>'
               + '<p class="schwerpunkt"><span class="label">Themenschwerpunkt</span>'
               +   esc(m.schwerpunkt) + '</p>'
@@ -637,9 +896,9 @@
     return '<section class="block">'
       + '<div class="wrap">'
       +   '<div class="kontakt-layout">'
-      +     '<form class="kontakt-form card" id="kontakt-form" data-auftritt></form>'
+      +     '<form class="kontakt-form card" id="kontakt-form" novalidate data-auftritt></form>'
       +     '<div data-auftritt>'
-      +       '<div class="prose" style="margin-bottom:var(--sp-5)"><p>'
+      +       '<div class="prose prose-lg" style="margin-bottom:var(--sp-5)"><p>'
       +         tx(k.einleitung) + '</p></div>'
       +       '<div class="kontakt-direkt" id="kontakt-direkt"></div>'
       +     '</div>'
@@ -659,30 +918,60 @@
     form.innerHTML =
       '<div class="form-feld">'
       +  '<label for="f-name">' + esc(k.felder.name) + '</label>'
-      +  '<input type="text" id="f-name" name="name" required autocomplete="name">'
+      +  '<input type="text" id="f-name" name="name" required autocomplete="name" '
+      +    'maxlength="120" aria-describedby="e-name">'
+      +  '<span class="form-fehler" id="e-name" role="alert"></span>'
       + '</div>'
       + '<div class="form-feld">'
       +  '<label for="f-betreff">' + esc(k.felder.betreff) + '</label>'
-      +  '<input type="text" id="f-betreff" name="betreff" required>'
+      +  '<input type="text" id="f-betreff" name="betreff" required maxlength="150" '
+      +    'aria-describedby="e-betreff">'
+      +  '<span class="form-fehler" id="e-betreff" role="alert"></span>'
       + '</div>'
       + '<div class="form-feld">'
       +  '<label for="f-nachricht">' + esc(k.felder.nachricht) + '</label>'
-      +  '<textarea id="f-nachricht" name="nachricht" rows="6" required></textarea>'
+      +  '<textarea id="f-nachricht" name="nachricht" rows="6" required minlength="10" '
+      +    'maxlength="3000" aria-describedby="e-nachricht"></textarea>'
+      +  '<span class="form-fehler" id="e-nachricht" role="alert"></span>'
       + '</div>'
-      + '<button type="submit" class="btn btn-primary">' + esc(k.absendenLabel) + '</button>'
+      + '<button type="submit" class="btn btn-primary">' + esc(k.absendenLabel) + PFEIL + '</button>'
       + '<p class="form-hinweis">Beim Absenden öffnet sich Ihr Mailprogramm mit '
       + 'fertig vorbereitetem Text. Es werden keine Daten an einen Server übertragen.</p>'
       + '<p class="form-status" id="form-status" role="status"></p>';
 
     $('#kontakt-direkt').innerHTML =
-      '<p class="kontakt-adresse"><a id="kontakt-link" href="#">' + esc(adresse) + '</a></p>'
+      '<p class="label">Direkt per E-Mail</p>'
+      + '<p class="kontakt-adresse"><a id="kontakt-link" href="#">' + esc(adresse) + '</a></p>'
       + '<button type="button" class="btn btn-secondary" id="kopieren">'
       + esc(k.kopierenLabel) + '</button>';
 
     $('#kontakt-link').setAttribute('href', 'mailto:' + adresse);
 
+    function pruefe(feld, fehlerId, meldungen) {
+      var el = $(feld), out = $(fehlerId);
+      var v = el.value.trim();
+      var msg = '';
+      if (!v) msg = meldungen.leer;
+      else if (el.minLength > 0 && v.length < el.minLength) msg = meldungen.kurz;
+      out.textContent = msg;
+      el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+      return !msg;
+    }
+
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
+      var ok = pruefe('#f-name', '#e-name', { leer: 'Bitte einen Namen angeben.' });
+      ok = pruefe('#f-betreff', '#e-betreff', { leer: 'Bitte einen Betreff angeben.' }) && ok;
+      ok = pruefe('#f-nachricht', '#e-nachricht', {
+        leer: 'Bitte eine Nachricht eingeben.',
+        kurz: 'Die Nachricht ist sehr kurz — bitte mindestens 10 Zeichen.'
+      }) && ok;
+      if (!ok) {
+        $('#form-status').textContent = '';
+        var erstes = $('[aria-invalid="true"]', form);
+        if (erstes) erstes.focus();
+        return;
+      }
       var name = $('#f-name').value.trim();
       var betreff = $('#f-betreff').value.trim();
       var text = $('#f-nachricht').value.trim();
@@ -691,6 +980,15 @@
       window.location.href = 'mailto:' + adresse
         + '?subject=' + encodeURIComponent(k.betreffPrefix + betreff)
         + '&body=' + encodeURIComponent(body);
+    });
+
+    $$('input, textarea', form).forEach(function (el) {
+      el.addEventListener('input', function () {
+        if (el.getAttribute('aria-invalid') === 'true') {
+          el.setAttribute('aria-invalid', 'false');
+          $('#' + el.getAttribute('aria-describedby')).textContent = '';
+        }
+      });
     });
 
     $('#kopieren').addEventListener('click', function () {
@@ -715,10 +1013,75 @@
     });
   }
 
+  /* -- FAQ ----------------------------------------------------------------- */
+
+  function renderFaq() {
+    var f = C.faq;
+    return '<section class="block">'
+      + '<div class="wrap faq-layout">'
+      +   '<div class="faq-liste">'
+      +     f.fragen.map(function (q, i) {
+            return '<details class="faq" name="faq"' + (i === 0 ? ' open' : '') + ' data-auftritt>'
+              + '<summary><span class="nr">' + zweistellig(i + 1) + '</span>'
+              +   '<span class="frage-text">' + esc(q.frage) + '</span>'
+              +   '<span class="faq-icon" aria-hidden="true"></span></summary>'
+              + '<div class="faq-antwort"><p>' + tx(q.antwort) + '</p></div>'
+              + '</details>';
+          }).join('')
+      +   '</div>'
+      +   '<aside class="faq-aside card" data-auftritt>'
+      +     '<p class="label">Nicht dabei?</p>'
+      +     '<p>Alle anderen Fragen beantwortet das Team gerne direkt.</p>'
+      +     '<a class="btn btn-secondary" href="' + esc(dateiFuer('kontakt')) + '">Zum Kontakt' + PFEIL + '</a>'
+      +   '</aside>'
+      + '</div>'
+      + '</section>';
+  }
+
+  /* -- Rechtliche Seiten (Impressum, Datenschutz) -------------------------- */
+
+  function renderRechtliches() {
+    var r = C[SEITE];
+    return '<section class="block">'
+      + '<div class="wrap rechtliches">'
+      +   r.abschnitte.map(function (ab, i) {
+            return '<section class="rechts-abschnitt" aria-labelledby="r-' + i + '">'
+              + '<h2 id="r-' + i + '">' + esc(ab.titel) + '</h2>'
+              + '<div class="prose">'
+              +   ab.absaetze.map(function (p) { return '<p>' + txbr(p) + '</p>'; }).join('')
+              + '</div>'
+              + '</section>';
+          }).join('')
+      +   '<p class="rechts-stand">Stand: ' + esc(r.stand || datumDE(HEUTE)) + '</p>'
+      + '</div>'
+      + '</section>';
+  }
+
+  /* -- Fehlerseite (404) --------------------------------------------------- */
+
+  function renderFehler() {
+    var f = C.fehlerseite;
+    return '<section class="block">'
+      + '<div class="wrap">'
+      +   '<div class="prose prose-lg" style="margin-bottom:var(--sp-6)"><p>' + esc(f.text) + '</p></div>'
+      +   '<div class="index-grid">'
+      +     hauptseiten().map(function (s, i) {
+            return '<a class="tile" href="' + esc(s.datei) + '" data-auftritt>'
+              + '<span class="nr">' + (s.id === 'index' ? 'Start' : zweistellig(i)) + '</span>'
+              + '<h3>' + esc(s.nav) + '</h3>'
+              + (s.kurz ? '<p>' + tx(s.kurz) + '</p>' : '<p>Übersicht und Projektstatus.</p>')
+              + '<span class="pfeil">' + PFEIL + '</span>'
+              + '</a>';
+          }).join('')
+      +   '</div>'
+      + '</div>'
+      + '</section>';
+  }
+
   /* -- Blättern und Footer ------------------------------------------------- */
 
   function renderSeitenwechsel() {
-    var alle = C.navigation;
+    var alle = hauptseiten();
     var i = -1;
     alle.forEach(function (s, idx) { if (s.id === SEITE) i = idx; });
     if (i < 0) return '';
@@ -743,55 +1106,149 @@
 
   function renderFooter() {
     var f = C.footer;
-    var imp = f.impressum;
+    var m = C.meta;
     var dok = f.dokumente || [];
+    var extern = ' rel="noopener" target="_blank"';
+    var analytikAktiv = !!(m.analytik && m.analytik.skript);
 
     var schulzeile = esc(f.schule) + (f.klasseAnzeigen ? ' · ' + esc(f.klasse) : '');
 
     $('#site-footer').innerHTML =
       '<div class="wrap">'
       + '<div class="footer-grid">'
-      +   '<div>'
-      +     '<h2>Schule</h2>'
+      +   '<div class="footer-schule-block">'
+      +     (m.schulWebsite
+            ? '<a class="footer-logo" href="' + esc(m.schulWebsite) + '"' + extern
+              + ' aria-label="' + esc(f.schule) + ' — Website der Schule (öffnet in neuem Tab)">'
+            : '<span class="footer-logo">')
+      +       '<img src="' + esc(m.logoMitSlogan || m.logo) + '" alt="' + esc(m.logoAlt) + '" '
+      +         'width="152" height="78" loading="lazy" decoding="async">'
+      +     (m.schulWebsite ? '</a>' : '</span>')
       +     '<p class="footer-schule">' + schulzeile + '</p>'
       +     '<p>' + esc(f.abteilung) + '</p>'
+      +     (f.anschrift ? '<p>' + tx(f.anschrift) + '</p>' : '')
       +     '<p>Maturajahrgang ' + esc(f.maturajahrgang) + '</p>'
       +   '</div>'
       +   '<div>'
-      +     '<h2>' + esc(imp.titel) + badge(imp) + '</h2>'
-      +     '<p>' + esc(imp.medieninhaber) + '<br>' + esc(imp.anschrift) + '</p>'
-      +     '<p>Für den Inhalt verantwortlich:<br>' + esc(imp.verantwortlich) + '</p>'
-      +     '<p>' + esc(imp.zweck) + '</p>'
-      +     '<p>' + esc(imp.hinweis) + '</p>'
+      +     '<h2>Dokumente</h2>'
+      +     '<ul class="footer-links">'
+      +       hauptseiten().map(function (s) {
+                return '<li><a href="' + esc(s.datei) + '"'
+                  + (s.id === SEITE ? ' aria-current="page"' : '') + '>' + esc(s.nav) + '</a></li>';
+              }).join('')
+      +     '</ul>'
       +   '</div>'
-      +   (dok.length
-          ? '<div><h2>Dokumente</h2><ul class="dokumente">'
-            + dok.map(function (d) {
+      +   '<div>'
+      +     '<h2>Rechtliches</h2>'
+      +     '<ul class="footer-links">'
+      +       footerseiten().map(function (s) {
+                return '<li><a href="' + esc(s.datei) + '"'
+                  + (s.id === SEITE ? ' aria-current="page"' : '') + '>' + esc(s.nav) + '</a></li>';
+              }).join('')
+      +       (f.quelltext ? '<li><a href="' + esc(f.quelltext) + '"' + extern
+                + '>Quelltext auf GitHub</a></li>' : '')
+      +       dok.map(function (d) {
                 return '<li><a href="' + esc(d.datei) + '" download>' + esc(d.titel)
                   + '</a>' + (d.groesse ? ' <span class="mono">' + esc(d.groesse)
                   + '</span>' : '') + '</li>';
               }).join('')
-            + '</ul></div>'
-          : '')
+      +     '</ul>'
+      +   '</div>'
+      +   '<div class="footer-hinweis-block">'
+      +     '<h2>Hinweis</h2>'
+      +     '<p>' + esc(f.hinweis) + '</p>'
+      +     '<p>' + esc(f.generalisierungshinweis) + '</p>'
+      +   '</div>'
       + '</div>'
-      + '<p class="footer-hinweis">' + esc(f.generalisierungshinweis) + '</p>'
       + '<p class="footer-meta">'
-      +   '<span>' + esc(C.hero.projektname) + ' · ' + new Date().getFullYear() + '</span>'
-      +   '<span>Diese Seite lädt keine externen Ressourcen und setzt keine Cookies.</span>'
+      +   '<span>' + WEAVE + esc(C.hero.projektname) + ' · ' + HEUTE.getFullYear() + '</span>'
+      +   '<span>' + (analytikAktiv
+            ? 'Cookiefreie Besucherstatistik aktiv — Details in der Datenschutzerklärung.'
+            : 'Diese Seite lädt keine externen Ressourcen und setzt keine Cookies.') + '</span>'
       + '</p>'
       + '</div>';
+  }
+
+  /* -- Strukturierte Daten und optionale Statistik ------------------------- */
+
+  function absoluteUrl(datei) {
+    var basis = C.meta.url.replace(/\/?$/, '/');
+    return basis + String(datei).replace(/^\.\//, '').replace(/^index\.html$/, '');
+  }
+
+  function injectJsonLd() {
+    var eintrag = eintragFuer(SEITE);
+    var titel = document.title;
+    var beschreibung = ($('meta[name="description"]') || {}).content || C.meta.beschreibung;
+    var graph = [
+      {
+        '@type': 'WebSite', '@id': absoluteUrl('index.html') + '#website',
+        url: absoluteUrl('index.html'), name: C.hero.projektname,
+        description: C.meta.beschreibung, inLanguage: 'de-AT',
+        publisher: { '@id': absoluteUrl('index.html') + '#org' }
+      },
+      {
+        '@type': 'EducationalOrganization', '@id': absoluteUrl('index.html') + '#org',
+        name: C.footer.schule, url: C.meta.schulWebsite || undefined,
+        logo: absoluteUrl(C.meta.logoMitSlogan || C.meta.logo)
+      },
+      {
+        '@type': 'WebPage', url: absoluteUrl(eintrag.datei || 'index.html'),
+        name: titel, description: beschreibung, inLanguage: 'de-AT',
+        isPartOf: { '@id': absoluteUrl('index.html') + '#website' },
+        about: { '@type': 'Thesis', name: C.hero.antragstitel,
+                 inSupportOf: 'Reife- und Diplomprüfung',
+                 sourceOrganization: { '@id': absoluteUrl('index.html') + '#org' } }
+      }
+    ];
+    if (SEITE !== 'index' && eintrag.datei) {
+      graph.push({
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Übersicht', item: absoluteUrl('index.html') },
+          { '@type': 'ListItem', position: 2, name: eintrag.nav, item: absoluteUrl(eintrag.datei) }
+        ]
+      });
+    }
+    if (SEITE === 'faq') {
+      graph.push({
+        '@type': 'FAQPage',
+        mainEntity: C.faq.fragen.map(function (q) {
+          return { '@type': 'Question', name: q.frage,
+                   acceptedAnswer: { '@type': 'Answer', text: t(q.antwort) } };
+        })
+      });
+    }
+    var s = document.createElement('script');
+    s.type = 'application/ld+json';
+    s.textContent = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph });
+    document.head.appendChild(s);
+  }
+
+  function injectAnalytik() {
+    var a = C.meta.analytik;
+    if (!a || !a.skript) return;
+    var s = document.createElement('script');
+    s.defer = true;
+    s.src = a.skript;
+    if (a.websiteId) s.setAttribute('data-website-id', a.websiteId);
+    document.head.appendChild(s);
   }
 
   /* -- Zusammenbau --------------------------------------------------------- */
 
   var SEITEN = {
-    index:       { render: renderIndex,       init: null },
+    index:       { render: renderIndex,       init: initFabric },
     architektur: { render: renderArchitektur, init: initArchitektur },
     phasen:      { render: renderPhasen,      init: null },
     fortschritt: { render: renderFortschritt, init: null },
     ergebnisse:  { render: renderErgebnisse,  init: initErgebnisse },
     team:        { render: renderTeam,        init: null },
-    kontakt:     { render: renderKontakt,     init: initKontakt }
+    kontakt:     { render: renderKontakt,     init: initKontakt },
+    faq:         { render: renderFaq,         init: null },
+    impressum:   { render: renderRechtliches, init: null },
+    datenschutz: { render: renderRechtliches, init: null },
+    fehler:      { render: renderFehler,      init: null }
   };
 
   var TITEL = {
@@ -800,16 +1257,16 @@
     fortschritt: function () { return C.fortschritt.titel; },
     ergebnisse:  function () { return C.ergebnisse.titel; },
     team:        function () { return C.team.titel; },
-    kontakt:     function () { return C.kontakt.titel; }
+    kontakt:     function () { return C.kontakt.titel; },
+    faq:         function () { return C.faq.titel; },
+    impressum:   function () { return C.impressum.titel; },
+    datenschutz: function () { return C.datenschutz.titel; },
+    fehler:      function () { return C.fehlerseite.titel; }
   };
-
-  function eintragFuer(id) {
-    return C.navigation.filter(function (s) { return s.id === id; })[0] || {};
-  }
 
   function staffeln() {
     $$('[data-auftritt]').forEach(function (el, i) {
-      el.style.setProperty('--i', i);
+      el.style.setProperty('--i', Math.min(i, 12));
     });
   }
 
@@ -831,7 +1288,7 @@
   }
 
   function start() {
-    var seite = SEITEN[SEITE] || SEITEN.index;
+    var seite = SEITEN[SEITE] || SEITEN.fehler;
     var eintrag = eintragFuer(SEITE);
 
     renderHeader();
@@ -839,7 +1296,11 @@
     var html = '';
     if (SEITE !== 'index') {
       var titel = TITEL[SEITE] ? TITEL[SEITE]() : eintrag.nav || '';
-      html += seitenkopf(titel, eintrag.kurz);
+      var lead = eintrag.kurz;
+      var opts = {};
+      if (SEITE === 'impressum' || SEITE === 'datenschutz') lead = C[SEITE].einleitung;
+      if (SEITE === 'fehler' || !SEITEN[SEITE]) { opts.kicker = 'Fehler 404'; lead = ''; }
+      html += seitenkopf(titel, lead, opts);
     }
     html += seite.render();
     html += renderSeitenwechsel();
@@ -847,12 +1308,15 @@
 
     if (seite.init) seite.init();
     renderFooter();
+    injectJsonLd();
+    injectAnalytik();
     staffeln();
     initReveal();
 
     /* Timeline nach dem Layout messen und animieren. */
     if ($('#timeline')) {
       window.setTimeout(animiereTimeline, REDUCED ? 0 : 260);
+      window.addEventListener('resize', animiereTimeline);
     }
 
     if (ENTWURF_ANZEIGEN) {

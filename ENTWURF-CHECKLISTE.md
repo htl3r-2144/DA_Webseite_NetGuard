@@ -1,6 +1,6 @@
 # Ersetzungs-Checkliste — Entwurfstexte
 
-**31 Texte** in [`data/content.js`](data/content.js) sind von mir formuliert und
+**Rund 50 Texte** in [`data/content.js`](data/content.js) sind von mir formuliert und
 warten auf deine Fassung. Alle stammen ausschließlich aus dem
 Diplomarbeitsansuchen — es sind keine Ergebnisse, Zahlen oder Zitate erfunden.
 
@@ -130,3 +130,18 @@ Dienste führen kein JavaScript aus und lesen nur den ausgelieferten Quelltext.
 - [ ] Meilenstein-Status in `content.js` auf den tatsächlichen Stand setzen
       (`geplant` / `laufend` / `abgeschlossen`) — derzeit stehen alle sieben
       auf `geplant`, deshalb ist die Fortschrittslinie noch bei null
+
+## FAQ
+
+- [ ] `faq.fragen[*].antwort` — sieben Antworten, aus dem Ansuchen formuliert
+
+## Rechtliches — mit Betreuung / Schulleitung abstimmen
+
+- [ ] `impressum.abschnitte` — Anschrift, Verantwortliche, Logo-Freigabe
+- [ ] `datenschutz.abschnitte` — Verantwortlicher
+- [ ] `footer.anschrift`
+
+## Nicht in content.js
+
+- [ ] `<title>` und `<meta name="description">` je `.html` — sind gesetzt,
+      aber Formulierungen prüfen (Suchergebnis-Text).

@@ -67,3 +67,12 @@ Zwei Bedingungen, die hier relevant sind:
 etwas schmaler und die technischen Begriffe in einer Schreibmaschinenschrift
 erscheinen. Falls nicht: `F12` drücken, Reiter **Network**, nach `woff2` filtern
 und neu laden — dort steht, welche Datei nicht gefunden wurde.
+
+
+---
+
+## IBM Plex Sans Condensed (Überschriften)
+
+`plex-sans-condensed-500.woff2` und `plex-sans-condensed-600.woff2` liegen
+bereits hier (Latin-Subset, von Google Fonts, SIL OFL 1.1 — Lizenz in
+`OFL-IBMPlex.txt`). Die Schrift wird im CSS als `'Plex Condensed'` angesprochen.

@@ -7,9 +7,17 @@ Statische Seite ohne Build-Step, ohne Framework, ohne npm. Vanilla HTML, CSS und
 JavaScript. Zur Laufzeit werden **keine** externen Ressourcen geladen: keine
 Fonts von Google, kein CDN, kein Analytics, keine Cookies.
 
+**Live:** https://htl3r-2144.github.io/DA_Webseite_NetGuard/
+
+Gestaltungsidee: *das Gewebe*. Eine Security Fabric ist wörtlich ein Gewebe aus
+Fäden (Datenflüssen) und Knoten (Komponenten). Daraus kommen das animierte
+Gewebe im Hero, das kleine Gewebe-Zeichen vor Überschriften, die Statuskonsole
+mit dem live berechneten Projektstand und die laufenden Datenpakete im
+Architekturdiagramm. Akzentfarbe ist das Rot des Schullogos.
+
 ---
 
-## Aufbau — sieben eigenständige Seiten
+## Aufbau — zehn eigenständige Seiten
 
 Jeder Menüpunkt ist eine echte HTML-Datei mit eigener Adresse. Man kann also
 direkt auf `…/team.html` verlinken, und der Zurück-Knopf des Browsers
@@ -22,8 +30,14 @@ phasen.html         Phase 1 und Phase 2 gegenübergestellt
 fortschritt.html    Meilenstein-Timeline
 ergebnisse.html     Platzhalter und vorbereitetes Diagramm
 team.html           vier Mitglieder, zwei Betreuer
-kontakt.html        Kontaktformular
+kontakt.html        Kontaktformular (mailto, keine Datenübertragung)
+faq.html            häufige Fragen als aufklappbare Liste
+impressum.html      Offenlegung, Haftung, Urheberrecht, Marken   (nur im Footer verlinkt)
+datenschutz.html    Datenschutzerklärung                         (nur im Footer verlinkt)
+404.html            Fehlerseite, wird von GitHub Pages automatisch ausgeliefert
 ```
+
+Dazu kommen `robots.txt`, `sitemap.xml` und `site.webmanifest` im Hauptordner.
 
 Die HTML-Dateien sind reine Gerüste — Kopfzeile, Inhalt und Fußzeile baut
 `js/render.js` aus `data/content.js` auf. Welche Seite gerendert wird, steht im
@@ -34,7 +48,8 @@ data/content.js     ALLE Inhalte — die einzige Datei für Updates
 css/styles.css      Design-Tokens und Layout
 js/render.js        baut die Seiten aus content.js auf
 js/chart.js         SVG-Balkendiagramm für die Ergebnisse
-assets/             Logo, Favicon, Social-Preview, Schriften, Antrags-PDF
+assets/             Logo, Favicon, Icons, Social-Preview, Schriften
+tools/og-generator.html   erzeugt og-image.png und die PNG-Icons im Browser
 PLAN.md             Designentscheidungen
 ENTWURF-CHECKLISTE.md   welche Texte noch zu ersetzen sind
 ```
@@ -97,33 +112,48 @@ Nummerierung und die Blätter-Links am Seitenende.
 
 ---
 
-## Noch abzulegende Dateien
+## Launch-Checkliste — was schon erledigt ist
 
-| Datei | Zweck | Anleitung |
-|---|---|---|
-| `assets/fonts/*.woff2` (3 Stück) | Schriftarten | [assets/fonts/README.md](assets/fonts/README.md) |
-| `assets/fonts/OFL-*.txt` (2 Stück) | Lizenztexte, Pflicht | dito |
-| `assets/logo-htl.svg` | Schullogo — aktuell Platzhalter | gleiche Datei überschreiben, Maße 132×36 |
+| Punkt | Umsetzung |
+|---|---|
+| Datenschutz | `datenschutz.html`, Texte in `content.js` → `datenschutz` (Entwurf, prüfen) |
+| Impressum / Nutzungshinweise | `impressum.html` (§ 5 ECG, § 25 MedienG, Haftung, Urheberrecht, Marken) |
+| Klarer Call-to-Action | zwei Schaltflächen im Hero, konfigurierbar in `hero.aktionen` |
+| FAQ | `faq.html`, Fragen in `content.js` → `faq.fragen`, mit FAQPage-Strukturdaten |
+| robots.txt / sitemap.xml | im Hauptordner, Sitemap listet alle zehn Seiten |
+| 404-Seite | `404.html`, funktioniert auch in Unterpfaden |
+| Alt-Texte | Logo, Avatare, Diagramme (`<title>`/`<desc>`) |
+| Analytics | bewusst **aus**. Optional cookiefrei über `meta.analytik` (Umami/Plausible), sonst GitHub → Insights → Traffic |
+| Meta-Titel und -Beschreibung | je Seite eindeutig, im `<head>` jeder `.html` |
+| Social Share | Open Graph + Twitter Card, `assets/og-image.png` 1200×630 |
+| Favicon | `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192/512.png`, Manifest |
+| Canonical-URLs | zeigen auf `htl3r-2144.github.io/DA_Webseite_NetGuard/` |
+| Cookie-Banner | **nicht nötig**: keine Cookies, nur ein localStorage-Wert für das Farbschema (funktional) |
+| Mobile | Burger-Menü unter 900 px, alle Raster brechen um |
+| Barrierefreiheit | Skip-Link, Fokusringe, `aria-current`, Formularfehler mit `role="alert"`, reduzierte Bewegung |
+| Formular | Validierung mit Fehlermeldungen, mailto ohne Server |
+| Links | alle internen Links werden beim Rendern aus `navigation` erzeugt — keine toten Pfade |
+| Performance | keine externen Requests, Schriften lokal + preload, SVG statt Bilder |
 
-Beides ist optional in dem Sinn, dass die Seite auch ohne diese Dateien
-vollständig funktioniert.
+### Schriften
 
-### Antrags-PDF
+Inter, JetBrains Mono und IBM Plex Sans Condensed liegen als WOFF2 in
+`assets/fonts/`, jeweils mit OFL-Lizenztext. Details in
+[assets/fonts/README.md](assets/fonts/README.md).
 
-`assets/da-ansuchen.pdf` liegt bereits im Ordner und ist im Footer verlinkt. Es
-ist die **Originalfassung**, inklusive der Schul-E-Mail-Adressen aller vier
-Teammitglieder auf Seite 9 (Entscheidung vom 28.07.2026).
+### Logo
 
-Soll das später zurückgenommen werden, genügt es **nicht**, den Eintrag in
-`data/content.js` zu löschen. Die Datei bleibt dann weiterhin unter
-`https://htl3r-2146.github.io/NetGuard/assets/da-ansuchen.pdf` erreichbar. Nötig
-sind beide Schritte:
+`assets/logo-htl.svg` (Wortmarke, Kopfzeile) und `assets/logo-htl-slogan.svg`
+(mit Slogan, Fußzeile) sind aus der offiziellen Logodatei erzeugt. Die Grafik
+ist nachgezeichnet und braucht einen hellen Untergrund — deshalb liegt sie
+immer auf einer weißen Plakette, auch im dunklen Modus.
 
-```bash
-git rm assets/da-ansuchen.pdf && git commit -m "Antrag entfernt" && git push
-```
+### Social-Preview und Icons neu erzeugen
 
-und den Eintrag bei `dokumente` in `data/content.js` entfernen.
+`tools/og-generator.html` im Browser über einen lokalen Server öffnen
+(siehe unten), in der Konsole `await render()` ausführen und die Data-URLs aus
+`OG.og` bzw. `OG.i512` … als PNG speichern. Nur nötig, wenn sich Titel, Logo
+oder Farben ändern.
 
 ---
 
@@ -135,17 +165,17 @@ Einmalig:
 git init && git add -A && git commit -m "NetGuard Projektwebsite"
 ```
 
-Dann auf GitHub das Repository `NetGuard` anlegen und pushen:
+Dann auf GitHub das Repository anlegen und pushen (bereits geschehen):
 
 ```bash
-git remote add origin https://github.com/htl3r-2146/NetGuard.git && git branch -M main && git push -u origin main
+git remote add origin https://github.com/htl3r-2144/DA_Webseite_NetGuard.git && git branch -M main && git push -u origin main
 ```
 
 Anschließend im Repository unter **Settings → Pages** als Quelle `main` und
 `/ (root)` auswählen. Die Seite ist danach erreichbar unter:
 
 ```
-https://htl3r-2146.github.io/NetGuard/
+https://htl3r-2144.github.io/DA_Webseite_NetGuard/
 ```
 
 Spätere Änderungen:
@@ -162,15 +192,16 @@ die Seite mit Jekyll, was hier nicht gewollt ist.
 `index.html` doppelklicken genügt. Wer lieber einen kleinen Server will:
 
 ```bash
-python -m http.server 8123 --directory "C:\Users\Michal\Claude Code\NetGuard"
+python -m http.server 8123
 ```
 
 ---
 
 ## Rahmenbedingungen
 
-* Heller Modus ist Standard, dunkler Modus über `prefers-color-scheme`.
-* Kontraste durchgehend mindestens WCAG AA (schwächster Wert 4,91:1).
+* Heller Modus ist Standard, dunkler Modus über `prefers-color-scheme` oder den
+  Schalter in der Kopfzeile.
+* Kontraste durchgehend mindestens WCAG AA (schwächster Textwert 4,86:1).
 * `prefers-reduced-motion: reduce` schaltet sämtliche Animationen ab.
 * Alle Angaben zur Infrastruktur sind generalisiert. Keine IP-Adressen, keine
   Hostnamen, keine Netzsegmente, keine Klassenbezeichnungen.

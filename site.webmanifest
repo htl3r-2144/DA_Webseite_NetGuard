@@ -1,0 +1,15 @@
+{
+  "name": "NetGuard — Fortinet Security Fabric in der Praxis",
+  "short_name": "NetGuard",
+  "description": "Diplomarbeit an der HTL Wien 3 Rennweg",
+  "lang": "de-AT",
+  "start_url": "./index.html",
+  "display": "browser",
+  "background_color": "#F2F4F6",
+  "theme_color": "#BF2117",
+  "icons": [
+    { "src": "./assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./assets/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "./assets/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

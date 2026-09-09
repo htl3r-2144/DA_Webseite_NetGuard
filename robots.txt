@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /404.html
+
+Sitemap: https://htl3r-2144.github.io/DA_Webseite_NetGuard/sitemap.xml
