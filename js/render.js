@@ -78,10 +78,11 @@
     + '<circle cx="8" cy="8" r="1.9" fill="currentColor"/></svg>';
 
   /* -- Theme-Umschalter ----------------------------------------------------
-     Läuft neben prefers-color-scheme: ohne gespeicherte Wahl folgt die Seite
-     dem Systemschema, ein Klick setzt data-theme fest und merkt es sich.
-     Das Flackern beim Laden verhindert ein Inline-Skript im <head> jeder
-     Seite, das die gespeicherte Wahl vor dem ersten Rendern setzt.          */
+     Hell ist auf jeder Seite der Standard, unabhängig vom Systemschema. Ein
+     Klick setzt data-theme und merkt sich die Wahl im localStorage — damit
+     gilt sie auf allen Seiten. Das Flackern beim Laden verhindert ein
+     Inline-Skript im <head> jeder Seite, das die gespeicherte Wahl vor dem
+     ersten Rendern setzt.                                                  */
   var THEME_KEY = 'netguard-theme';
 
   var ICON_SONNE = '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">'
@@ -97,10 +98,10 @@
   function gespeichertesTheme() {
     try { return window.localStorage.getItem(THEME_KEY); } catch (e) { return null; }
   }
+  /** Hell ist der Standard auf jeder Seite; nur eine gespeicherte Wahl ändert das. */
   function effektivesTheme() {
     var g = gespeichertesTheme();
-    if (g === 'light' || g === 'dark') return g;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return g === 'dark' ? 'dark' : 'light';
   }
   function wendeTheme(modus) {
     document.documentElement.setAttribute('data-theme', modus);
@@ -123,6 +124,11 @@
         ? 'dark' : 'light';
       try { window.localStorage.setItem(THEME_KEY, neu); } catch (e) { /* ignoriert */ }
       wendeTheme(neu);
+    });
+    /* Wird das Schema in einem anderen Tab umgeschaltet, zieht dieser Tab
+       sofort nach — die Wahl gilt überall. */
+    window.addEventListener('storage', function (e) {
+      if (e.key === THEME_KEY) wendeTheme(effektivesTheme());
     });
   }
 

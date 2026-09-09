@@ -133,43 +133,12 @@
   --radius-lg: 12px;
   --header-h: 4.25rem;
 
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg:            #0B0F14;
-    --card:          #121820;
-    --sunk:          #0F141A;
-    --fg:            #E6EAEE;   /* 15,9:1 */
-    --fg-2:          #A9B3BD;   /*  9,0:1 */
-    --fg-3:          #8A95A0;   /*  6,3:1 */
-    --border:        #1F2933;
-    --border-strong: #2F3B47;
-    --accent:        #FF6A5C;   /*  6,8:1 */
-    --accent-hi:     #FF8A7E;
-    --accent-tint:   rgba(255, 106, 92, 0.13);
-    --accent-line:   rgba(255, 106, 92, 0.38);
-    --auf-akzent:    #0B0F14;
-    --status-lauf:   #6DB1FF;
-    --status-lauf-t: rgba(109, 177, 255, 0.14);
-    --status-fertig: #4CCB84;
-    --status-fertig-t: rgba(76, 203, 132, 0.14);
-    --mesh:          rgba(230, 234, 238, 0.10);
-    --mesh-node:     rgba(230, 234, 238, 0.22);
-    --konsole-bg:    #090C10;
-    --konsole-fg:    #D7DEE5;
-    --konsole-dim:   #7B8794;
-    --konsole-line:  rgba(255, 255, 255, 0.07);
-    --schatten:      0 1px 2px rgba(0, 0, 0, 0.5);
-    --schatten-hov:  0 1px 2px rgba(0, 0, 0, 0.5),
-                     0 20px 44px -20px rgba(0, 0, 0, 0.85);
-  }
-}
-
-/* Manueller Theme-Override durch den Umschalter im Header. Ein Attribut-
-   Selektor auf :root ist spezifischer als das in @media gekapselte :root
-   oben — er gewinnt also unabhängig von prefers-color-scheme. */
+/* Hell ist immer der Standard — unabhängig vom Systemschema. Dunkel gibt es
+   nur über den Umschalter in der Kopfzeile; die Wahl wird im Browser
+   gespeichert und gilt damit für alle Seiten. */
 :root[data-theme='light'] {
   --bg:            #F2F4F6;
   --card:          #FFFFFF;

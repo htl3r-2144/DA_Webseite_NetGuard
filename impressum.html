@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>(function () { try { var t = localStorage.getItem('netguard-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {} })();</script>
+<script>(function () { /* Hell ist Standard; nur eine gespeicherte Wahl schaltet um. */ try { var t = localStorage.getItem('netguard-theme'); document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light'); } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); } })();</script>
 
 <!-- ===========================================================================
      Diese Datei ist nur ein Gerüst. Kopfzeile, Inhalt und Fußzeile baut
@@ -22,9 +22,8 @@
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://htl3r-2144.github.io/DA_Webseite_NetGuard/impressum.html">
 
-<meta name="theme-color" content="#F2F4F6" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0B0F14" media="(prefers-color-scheme: dark)">
-<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F2F4F6">
+<meta name="color-scheme" content="light">
 
 <meta property="og:type" content="website">
 <meta property="og:locale" content="de_AT">

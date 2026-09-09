@@ -199,8 +199,9 @@ python -m http.server 8123
 
 ## Rahmenbedingungen
 
-* Heller Modus ist Standard, dunkler Modus über `prefers-color-scheme` oder den
-  Schalter in der Kopfzeile.
+* Heller Modus ist auf jeder Seite der Standard, unabhängig vom Systemschema.
+  Dunkler Modus nur über den Schalter in der Kopfzeile; die Wahl wird im
+  Browser gespeichert und gilt sofort auf allen Seiten und offenen Tabs.
 * Kontraste durchgehend mindestens WCAG AA (schwächster Textwert 4,86:1).
 * `prefers-reduced-motion: reduce` schaltet sämtliche Animationen ab.
 * Alle Angaben zur Infrastruktur sind generalisiert. Keine IP-Adressen, keine
