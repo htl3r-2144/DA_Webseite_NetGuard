@@ -46,9 +46,9 @@ window.render = async function(){
   ctx.fillStyle = '#BF2117'; ctx.fillRect(72, 296, 64, 4);
   // Untertitel
   ctx.fillStyle = '#0F1720'; ctx.font = '500 40px "Plex Condensed"';
-  ctx.fillText('Fortinet Security Fabric in der Praxis', 72, 362);
+  ctx.fillText('Threat Detection unter realen Bedingungen', 72, 362);
   ctx.fillStyle = '#3F4A55'; ctx.font = '400 22px "Inter"';
-  ctx.fillText('Aufbau im Labor, Evaluierung an realem Schulnetzwerk-Traffic', 72, 402);
+  ctx.fillText('Fortinet Security Fabric im Labor, gemessen vor und nach der Optimierung', 72, 402);
   // Komponenten
   ctx.font = '400 18px "JetBrains Mono"'; let x=72;
   ['FortiGate','FortiManager','FortiAnalyzer','FortiSIEM'].forEach(n=>{ const w=ctx.measureText(n).width+28; ctx.strokeStyle='#BAC3CC'; ctx.lineWidth=1; ctx.fillStyle='#FFFFFF'; rr(ctx,x,452,w,38,6); ctx.fill(); ctx.stroke(); ctx.fillStyle='#3F4A55'; ctx.fillText(n,x+14,478); x+=w+12; });

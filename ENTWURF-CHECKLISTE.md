@@ -55,8 +55,8 @@ zwei Auftritte — entsprechend kurz und aussagekräftig halten.
 
 ## Phasen
 
-- [ ] **Z. 328** · Phase 1, Laborumgebung
-- [ ] **Z. 347** · Phase 2, Echtbetrieb
+- [ ] **Z. 328** · Phase 1, Aufbauphase
+- [ ] **Z. 347** · Phase 2, Evaluierungsphase
 - [ ] **Z. 378** · `phasen.vergleich.beschreibung` — worauf der Vergleich hinausläuft
 
 ## Fortschritt — sieben Meilensteine
@@ -95,22 +95,18 @@ zwei Auftritte — entsprechend kurz und aussagekräftig halten.
 
 ## Bewusst NICHT als Entwurf markiert
 
-Diese Inhalte stammen wörtlich oder unmittelbar aus dem Ansuchen und sind
-deshalb keine Entwürfe:
+Diese Inhalte stammen wörtlich oder unmittelbar aus dem DA-Antrag v3
+(18.09.2026) und sind deshalb keine Entwürfe:
 
-Projektname · Antragstitel · zentrale Forschungsfrage · Namen und Rollen der
-vier Komponenten · Bausteine der Laborumgebung · die fünf Angriffsszenarien ·
-die vier Punkte des Vergleichsberichts · Namen, Kürzel, Rollen und
-Themenschwerpunkte aller sechs Personen · Maturajahrgang · Schule und Abteilung ·
+Projektname · Arbeitstitel · zentrale Forschungsfrage · Namen und Rollen der
+vier Komponenten · Bausteine der Spielwiese · die acht Angriffsszenarien ·
+die Punkte des Vergleichs · Namen, Kürzel, Rollen und Themenschwerpunkte aller
+sechs Personen · Maturajahrgang · Schule und Abteilung ·
 Generalisierungshinweis im Footer.
 
-Zwei Abweichungen davon, beide bewusst:
-
-* **„DSGVO" durch „Datenschutz" ersetzt** in den Themenschwerpunkten von David
-  Mayerhofer und Julian Heyderer. Die Rolle bleibt korrekt dargestellt, der von
-  dir gestrichene DSGVO-Statusabschnitt entfällt trotzdem.
-* **„SPAN-Port Setup" entfernt** aus Julian Heyderers Themenschwerpunkt, weil
-  Phase 2 ohne Spiegelpunkt beschrieben wird.
+**Ausnahme Zeitplan:** Der Antrag v3 nennt keine Termine. Die Zeiträume der
+Meilensteine stammen aus dem früheren Zeitplan und sind den neuen
+Arbeitsschritten zugeordnet. Bitte mit Jira abgleichen.
 
 **Nicht in `content.js`, sondern im Kopf der jeweiligen `.html`-Datei:** Titel
 und Beschreibung für Browser-Tab, Suchmaschinen und Link-Vorschau. Grund: Diese

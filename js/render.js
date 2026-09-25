@@ -586,10 +586,13 @@
 
     var titelEl = svgEl('title', { id: 'arch-svg-titel' });
     titelEl.textContent = 'Architektur der Security Fabric';
+    /* Zweite Quelle oben rechts: die Angreifer-VM. "echtbetrieb" ist der
+       frühere Name aus der Zeit vor dem Antrag v3 und bleibt als Rückfall. */
+    var quelle2 = a.angreifer || a.echtbetrieb;
     var descEl = svgEl('desc', { id: 'arch-svg-desc' });
     descEl.textContent = 'Schematische, generalisierte Darstellung: Traffic aus der '
-      + 'simulierten Unternehmensumgebung und realer Schulnetzwerk-Traffic laufen über '
-      + 'die ' + a.komponenten[0].name + '. Diese erhält ihre Policies vom '
+      + 'simulierten Unternehmensumgebung und die Angriffe der Angreifer-VM laufen '
+      + 'über die ' + a.komponenten[0].name + '. Diese erhält ihre Policies vom '
       + a.komponenten[1].name + ' und liefert Logdaten an ' + a.komponenten[2].name
       + ' sowie Ereignisse an ' + a.komponenten[3].name + '.';
     svg.appendChild(titelEl);
@@ -605,7 +608,7 @@
     svg.appendChild(defs);
 
     quellBox(svg, 120, 16, 340, 140, a.umgebung.titel, a.umgebung.bausteine);
-    quellBox(svg, 500, 16, 340, 140, a.echtbetrieb.titel, a.echtbetrieb.bausteine);
+    quellBox(svg, 500, 16, 340, 140, quelle2.titel, quelle2.bausteine);
 
     function linie(d, akzent, gestrichelt) {
       var attrs = {
@@ -627,7 +630,7 @@
     linie('M520,438 H560', false, true);
 
     flowLabel(svg, 365, 192, a.fluesse.trafficLabor);
-    flowLabel(svg, 625, 192, a.fluesse.trafficEcht);
+    flowLabel(svg, 625, 192, a.fluesse.angriffe || a.fluesse.trafficEcht);
     flowLabel(svg, 300, 252, a.fluesse.policy);
     flowLabel(svg, 430, 350, a.fluesse.logs);
     flowLabel(svg, 620, 350, a.fluesse.events);
@@ -1202,7 +1205,7 @@
         '@type': 'WebPage', url: absoluteUrl(eintrag.datei || 'index.html'),
         name: titel, description: beschreibung, inLanguage: 'de-AT',
         isPartOf: { '@id': absoluteUrl('index.html') + '#website' },
-        about: { '@type': 'Thesis', name: C.hero.antragstitel,
+        about: { '@type': 'Thesis', name: C.hero.projektname + ': ' + C.hero.antragstitel,
                  inSupportOf: 'Reife- und Diplomprüfung',
                  sourceOrganization: { '@id': absoluteUrl('index.html') + '#org' } }
       }

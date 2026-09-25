@@ -1,6 +1,6 @@
 # NetGuard — Projektwebsite
 
-Website zur Diplomarbeit *„Fortinet Security Fabric in der Praxis"* der
+Website zur Diplomarbeit *„NetGuard: Threat Detection unter realen Bedingungen"* der
 HTL Wien 3 Rennweg, Maturajahrgang 2027.
 
 Statische Seite ohne Build-Step, ohne Framework, ohne npm. Vanilla HTML, CSS und

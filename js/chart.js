@@ -38,6 +38,26 @@ window.NetGuardChart = (function () {
   }
 
   /**
+   * Teilt eine Kategoriebeschriftung auf höchstens zwei Zeilen auf, damit
+   * sie bei vielen Kategorien nicht in die Nachbarn läuft. Kurze Texte bleiben
+   * einzeilig; sonst wird am ersten Leerzeichen getrennt, ohne Leerzeichen
+   * nach dem Bindestrich, der der Mitte am nächsten liegt.
+   */
+  function umbrechen(text) {
+    text = String(text);
+    if (text.length <= 11) return [text];
+    var leer = text.indexOf(' ');
+    if (leer > 0) return [text.slice(0, leer), text.slice(leer + 1)];
+    var mitte = text.length / 2, best = -1;
+    for (var k = 1; k < text.length - 1; k++) {
+      if (text.charAt(k) === '-' && (best < 0 || Math.abs(k - mitte) < Math.abs(best - mitte))) {
+        best = k;
+      }
+    }
+    return best > 0 ? [text.slice(0, best + 1), text.slice(best + 1)] : [text];
+  }
+
+  /**
    * Baut ein Diagramm.
    * @param {object} cfg  Konfiguration aus content.js
    * @param {boolean} leer  true = Platzhaltergerüst ohne Werte
@@ -69,8 +89,8 @@ window.NetGuardChart = (function () {
 
     svg.appendChild(el('desc', { id: 'chart-d-' + cfg.id },
       leer
-        ? 'Diagrammgerüst ohne Messwerte. Die Werte werden nach Abschluss von '
-          + 'Phase 1 ergänzt.'
+        ? 'Diagrammgerüst ohne Messwerte. Die Werte werden nach der '
+          + 'Baseline-Messung ergänzt.'
         : cfg.titel + ' in ' + (cfg.einheit || '') + ', '
           + serien.length + ' Serien über ' + kats.length + ' Kategorien.'
     ));
@@ -144,14 +164,14 @@ window.NetGuardChart = (function () {
         x: ML + ki * gruppenBreite + gruppenBreite / 2,
         y: BASIS + 20, 'text-anchor': 'middle', class: 'chart-cat'
       });
-      var woerter = String(kat.label).split(' ');
-      if (woerter.length > 1 && kat.label.length > 11) {
+      var teile = umbrechen(kat.label);
+      if (teile.length > 1) {
         label.appendChild(el('tspan', {
           x: ML + ki * gruppenBreite + gruppenBreite / 2, dy: '0'
-        }, woerter[0]));
+        }, teile[0]));
         label.appendChild(el('tspan', {
           x: ML + ki * gruppenBreite + gruppenBreite / 2, dy: '13'
-        }, woerter.slice(1).join(' ')));
+        }, teile[1]));
       } else {
         label.textContent = kat.label;
       }
