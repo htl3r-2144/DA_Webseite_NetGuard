@@ -288,15 +288,22 @@ img { height: auto; }
   font-weight: 400;
 }
 
-/* Das Gewebe-Zeichen — inline vor Beschriftungen */
-.weave {
+/* Das Schildzeichen aus dem NetGuard-Logo — inline vor Beschriftungen */
+.mark {
   display: inline-block;
-  width: 0.95em; height: 0.95em;
-  vertical-align: -0.12em;
-  margin-right: 0.55em;
-  color: var(--accent);
+  width: 0.95em; height: 1.1em;
+  vertical-align: -0.2em;
+  margin-right: 0.5em;
+  color: #DA291C;   /* Rot aus dem Logo, in beiden Farbschemata gleich */
   flex-shrink: 0;
 }
+
+/* Projektlogo: helle und dunkle Variante, CSS zeigt genau eine */
+.ng-logo { display: inline-block; line-height: 0; }
+.ng-logo img { display: block; width: auto; }
+.ng-logo .logo-dunkel { display: none; }
+:root[data-theme='dark'] .ng-logo .logo-hell { display: none; }
+:root[data-theme='dark'] .ng-logo .logo-dunkel { display: block; }
 
 /* Überschrift mit Haarlinie — das wiederkehrende Gliederungselement */
 .rubrik {
@@ -400,6 +407,7 @@ img { height: auto; }
   display: flex; align-items: center; gap: var(--sp-4);
   flex-shrink: 0; text-decoration: none; color: inherit;
 }
+.brand-ng img { height: 40px; }
 /* Das Schullogo ist eine nachgezeichnete Grafik und braucht einen hellen
    Untergrund. Die Plakette sorgt in beiden Farbschemata dafür. */
 .brand-logo, .footer-logo {
@@ -410,18 +418,8 @@ img { height: auto; }
   padding: 4px 8px;
   line-height: 0;
 }
-.brand-logo img { display: block; height: 32px; width: auto; }
-.brand-name {
-  display: inline-flex; align-items: center;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1.25rem;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-  color: var(--fg);
-  padding-left: var(--sp-4);
-  border-left: 1px solid var(--border);
-}
+.brand-logo img { display: block; height: 26px; width: auto; }
+@media (max-width: 1180px) { .brand .brand-logo { display: none; } }
 
 .site-nav { margin-left: auto; }
 .site-nav ul { display: flex; gap: 2px; }
@@ -478,7 +476,7 @@ img { height: auto; }
 .nav-open .nav-toggle-bar:last-child  { transform: translateY(-3.5px) rotate(-45deg); }
 
 @media (max-width: 900px) {
-  .brand-name { display: none; }
+  .brand-ng img { height: 34px; }
   .nav-toggle { display: flex; }
   .site-nav {
     position: absolute; left: 0; right: 0; top: 100%;
@@ -537,7 +535,7 @@ img { height: auto; }
   color: var(--fg-3);
   margin-bottom: var(--sp-5);
 }
-.doc-index .weave { margin-right: 0; }
+.doc-index .mark { margin-right: 0; }
 .doc-index .strich { width: 28px; height: 1px; background: var(--border-strong); }
 .doc-index .aktiv { color: var(--accent); }
 
@@ -632,12 +630,16 @@ img { height: auto; }
   max-width: none;
 }
 .hero h1 {
-  font-size: var(--step-5);
-  line-height: 0.92;
-  letter-spacing: -0.015em;
-  text-transform: uppercase;
   margin-bottom: var(--sp-5);
   position: relative;
+  line-height: 0;
+}
+/* Das Logo als Hauptüberschrift; der linke Rand des Schilds sitzt bündig
+   mit dem Text darunter (Schild beginnt bei 24 von 470 Einheiten). */
+.hero-ng img {
+  height: clamp(5rem, 3rem + 8vw, 9.5rem);
+  max-width: 100%;
+  margin-left: calc(clamp(5rem, 3rem + 8vw, 9.5rem) * -0.185);
 }
 .hero h1::after {
   content: '';
@@ -1061,7 +1063,8 @@ img { height: auto; }
   color: var(--fg-3);
   margin: 0;
 }
-.phase > p { color: var(--fg-2); font-size: var(--step--1); }
+.phase > p, .phase-text p { color: var(--fg-2); font-size: var(--step--1); }
+.phase-text p + p { margin-top: var(--sp-3); }
 
 /* == 11  TIMELINE =========================================================== */
 
@@ -1205,7 +1208,7 @@ img { height: auto; }
   border: 1px solid var(--border); border-radius: 100px;
   padding: 0.2rem 0.7rem 0.2rem 0.6rem;
 }
-.person .komponente .weave { margin-right: 0.45em; }
+.person .komponente .mark { margin-right: 0.45em; }
 .person .bio { font-size: var(--step--1); color: var(--fg-2); }
 .person .schwerpunkt {
   font-size: var(--step--1); color: var(--fg-2);
@@ -1384,8 +1387,10 @@ img { height: auto; }
   margin-bottom: var(--sp-3);
 }
 .footer-grid p, .footer-grid li { color: var(--fg-2); margin-bottom: var(--sp-1); }
-.footer-logo { margin-bottom: var(--sp-4); padding: 8px 12px; }
-.footer-logo img { display: block; height: 62px; width: auto; }
+.footer-ng { display: block; margin: 0 0 var(--sp-4) -8px; }
+.footer-ng img { height: 46px; }
+.footer-logo { margin-bottom: var(--sp-4); padding: 6px 10px; }
+.footer-logo img { display: block; height: 48px; width: auto; }
 a.footer-logo:hover { border-color: var(--accent-line); }
 .footer-schule { font-weight: 600; color: var(--fg); }
 .footer-links li { margin-bottom: var(--sp-2); }

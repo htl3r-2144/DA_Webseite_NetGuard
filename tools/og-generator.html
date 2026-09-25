@@ -39,10 +39,10 @@ window.render = async function(){
   ctx.fillText('DIPLOMARBEIT · HTL WIEN 3 RENNWEG · MATURAJAHRGANG 2027', 72, 96);
   ctx.letterSpacing = '0px';
   // Titel
-  ctx.fillStyle = '#0F1720'; ctx.font = '600 176px "Plex Condensed"';
-  ctx.letterSpacing = '-3px';
-  ctx.fillText('NETGUARD', 66, 268);
-  ctx.letterSpacing = '0px';
+  // Projektlogo (Mesh Shield). Schild beginnt bei 24/470, daher x-Versatz.
+  const ng = await ladeBild('../assets/netguard-logo.svg');
+  const nh = 156, nw = nh * 470 / 130;
+  ctx.drawImage(ng, 72 - nh * 24 / 130, 118, nw, nh);
   ctx.fillStyle = '#BF2117'; ctx.fillRect(72, 296, 64, 4);
   // Untertitel
   ctx.fillStyle = '#0F1720'; ctx.font = '500 40px "Plex Condensed"';
@@ -62,8 +62,8 @@ window.render = async function(){
 
   // Icons aus favicon.svg
   const fav = await ladeBild('../assets/favicon.svg');
-  function icon(size){ const cc=document.createElement('canvas'); cc.width=cc.height=size; const x=cc.getContext('2d'); x.drawImage(fav,0,0,size,size); return cc.toDataURL('image/png'); }
-  OG.i512 = icon(512); OG.i192 = icon(192); OG.i180 = icon(180); OG.i32 = icon(32);
+  function icon(size, grund){ const cc=document.createElement('canvas'); cc.width=cc.height=size; const x=cc.getContext('2d'); let r=0; if(grund){ x.fillStyle=grund; x.fillRect(0,0,size,size); r=Math.round(size*0.14); } x.drawImage(fav,r,r,size-2*r,size-2*r); return cc.toDataURL('image/png'); }
+  OG.i512 = icon(512); OG.i192 = icon(192); OG.i180 = icon(180, '#FFFFFF'); OG.i32 = icon(32);
   document.getElementById('ic512').getContext('2d').drawImage(fav,0,0,512,512);
   return 'ok';
 };

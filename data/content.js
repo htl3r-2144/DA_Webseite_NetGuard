@@ -73,6 +73,12 @@ window.NETGUARD_CONTENT = {
     // Repository-Name, hier UND in jeder .html-Datei (canonical/og:url) anpassen.
     url: 'https://htl3r-2144.github.io/DA_Webseite_NetGuard/',
 
+    // Projektlogo „Mesh Shield". Der Schriftzug ist in Pfade umgewandelt,
+    // dadurch sieht das Logo ohne installierte Schrift überall gleich aus.
+    // Die Invers-Variante mit weißem „Net" erscheint im dunklen Farbschema.
+    projektlogo: './assets/netguard-logo.svg',
+    projektlogoInvers: './assets/netguard-logo-inverse.svg',
+
     // Schullogo (offizielle Wortmarke der HTL Wien 3 Rennweg).
     // Das Logo ist eine nachgezeichnete Grafik und braucht einen hellen
     // Untergrund — im dunklen Modus bekommt es automatisch eine weiße Plakette.
@@ -125,7 +131,7 @@ window.NETGUARD_CONTENT = {
       datei: './phasen.html',
       nav: 'Phasen',
       // ENTWURF – von Michal ersetzen
-      kurz: { text: 'Aufbau, Baseline-Messung, Optimierung und Re-Messung.', entwurf: true }
+      kurz: 'Die Arbeit gliedert sich in eine Aufbau- und eine Evaluierungsphase.'
     },
     {
       id: 'fortschritt',
@@ -180,15 +186,12 @@ window.NETGUARD_CONTENT = {
     // die Überschrift darüber bereits NetGuard lautet. Faktum, kein Entwurf.
     antragstitel: 'Threat Detection unter realen Bedingungen',
 
-    // ENTWURF – von Michal ersetzen
-    untertitel: {
-      text: 'Eine Fortinet Security Fabric wird in einer isolierten, simulierten '
-        + 'Unternehmensumgebung aufgebaut. Acht Angriffsszenarien laufen zuerst '
-        + 'gegen die Standardkonfiguration und nach gezielter Optimierung noch '
-        + 'einmal. Der Vergleich zeigt, wie viel Erkennungsleistung erst durch '
-        + 'die Konfiguration entsteht.',
-      entwurf: true
-    },
+    // Erster und letzter Satz der Aufgabenstellung aus dem Antrag v3.
+    // Die vollständige Aufgabenstellung steht weiter unten auf der Startseite.
+    untertitel: 'Auf einem Cisco UCS-Server der Schule und einer physischen '
+      + 'FortiGate wird eine Fortinet Security Fabric aus FortiGate, '
+      + 'FortiManager, FortiAnalyzer und FortiSIEM aufgebaut. Alle Arbeiten '
+      + 'finden ausschließlich in der isolierten Laborumgebung statt.',
 
     // Zentrale Forschungsfrage, wörtlich aus dem Antrag v3 — Faktum.
     forschungsfrage: 'Wie stark lässt sich die Erkennungsleistung einer Fortinet '
@@ -224,33 +227,51 @@ window.NETGUARD_CONTENT = {
   },
 
   /* ==========================================================================
-     AUSGANGSSITUATION
+     AUFGABENSTELLUNG — wörtlich aus dem Antrag v3, Seite 1
+     ========================================================================== */
+  aufgabenstellung: {
+    titel: 'Aufgabenstellung',
+    absaetze: [
+      'Auf einem Cisco UCS-Server der Schule und einer physischen FortiGate wird '
+      + 'eine Fortinet Security Fabric aus FortiGate, FortiManager, FortiAnalyzer '
+      + 'und FortiSIEM aufgebaut. Dazu kommt eine isolierte, simulierte '
+      + 'Unternehmensumgebung mit Active Directory, Clients, '
+      + '802.1X-Authentifizierung und Fileserver.',
+
+      'Gegen diese Umgebung fahren wir acht Angriffsszenarien mit Kali Linux: '
+      + 'zuerst gegen die Standardkonfiguration der Fabric (Baseline), dann nach '
+      + 'gezielter Optimierung (Security Profiles, Correlation Rules, Event '
+      + 'Handler, Hardening) noch einmal unter gleichen Bedingungen. Der '
+      + 'Vergleich der beiden Messreihen zeigt, wie viel Erkennungsleistung erst '
+      + 'durch die Konfiguration entsteht. Alle Arbeiten finden ausschließlich '
+      + 'in der isolierten Laborumgebung statt.'
+    ]
+  },
+
+  /* ==========================================================================
+     AUSGANGSSITUATION — wörtlich aus dem Antrag v3, Kapitel 1.1
      ========================================================================== */
   ausgangssituation: {
     titel: 'Ausgangssituation',
 
-    // ENTWURF – von Michal ersetzen
     absaetze: {
-      entwurf: true,
+      entwurf: false,
       texte: [
         'Die HTL Wien 3 Rennweg verfügt über einen Cisco UCS-Server und eine '
         + 'physische FortiGate-Appliance. Damit lässt sich eine komplette '
-        + 'Fortinet Security Fabric aufbauen: nicht nur eine Firewall, sondern '
-        + 'auch zentrales Management mit dem FortiManager, Log-Auswertung mit '
-        + 'dem FortiAnalyzer und Event-Korrelation mit FortiSIEM. Die Lizenzen '
-        + 'stellt das Fortinet Academic Program kostenlos bereit.',
+        + 'Fortinet Security Fabric aufbauen, also nicht nur eine Firewall, '
+        + 'sondern auch zentrales Management (FortiManager), Log-Auswertung '
+        + '(FortiAnalyzer) und Event-Korrelation (FortiSIEM). Die nötigen '
+        + 'Lizenzen können über das Fortinet Academic Program kostenlos '
+        + 'beantragt werden.',
 
-        'In der Praxis werden solche Systeme oft installiert und dann '
-        + 'weitgehend mit den Standardeinstellungen betrieben. Wie viel '
-        + 'Erkennungsleistung erst durch die Konfiguration entsteht, also durch '
-        + 'Security Profiles, eigene Correlation Rules, Event Handler und '
-        + 'Hardening, ist selten mit Zahlen belegt.',
-
-        'In einer isolierten Laborumgebung lässt sich genau das messen, weil '
-        + 'sich Ausgangszustand und Angriffe beliebig oft gleich wiederholen '
-        + 'lassen. Deshalb findet die gesamte Arbeit in einer simulierten '
-        + 'Unternehmensumgebung statt, ohne Verbindung zum Produktivnetz der '
-        + 'Schule.'
+        'In der Praxis werden solche Systeme oft installiert und dann weitgehend '
+        + 'mit den Standardeinstellungen betrieben. Wie viel Erkennungsleistung '
+        + 'tatsächlich erst durch die Konfiguration entsteht, also durch Security '
+        + 'Profiles, eigene Correlation Rules, Event Handler und Hardening, ist '
+        + 'selten mit Zahlen belegt. In einer Laborumgebung lässt sich das '
+        + 'messen, weil sich Ausgangszustand und Angriffe beliebig oft gleich '
+        + 'wiederholen lassen.'
       ]
     }
   },
@@ -279,7 +300,7 @@ window.NETGUARD_CONTENT = {
       {
         id: 'fortigate',
         name: 'FortiGate',
-        rolle: 'Next-Generation Firewall',   // Faktum aus dem Ansuchen
+        rolle: 'Firewall, physische Appliance',   // Faktum aus dem Antrag v3
         // ENTWURF – von Michal ersetzen
         beschreibung: {
           text: 'Physische Appliance im Datenpfad. Setzt Zonen und Policies '
@@ -293,7 +314,7 @@ window.NETGUARD_CONTENT = {
       {
         id: 'fortimanager',
         name: 'FortiManager',
-        rolle: 'Zentrales Policy-Management',
+        rolle: 'Zentrales Management',
         // ENTWURF – von Michal ersetzen
         beschreibung: {
           text: 'Verwaltet Policy-Packages, Lizenzen und Versionsstände '
@@ -307,7 +328,7 @@ window.NETGUARD_CONTENT = {
       {
         id: 'fortianalyzer',
         name: 'FortiAnalyzer',
-        rolle: 'Log-Aggregation und Forensik',
+        rolle: 'Log-Auswertung',
         // ENTWURF – von Michal ersetzen
         beschreibung: {
           text: 'Nimmt die Logdaten der FortiGate auf, hält sie nach einem '
@@ -321,7 +342,7 @@ window.NETGUARD_CONTENT = {
       {
         id: 'fortisiem',
         name: 'FortiSIEM',
-        rolle: 'Event-Korrelation, Alerting, CMDB',
+        rolle: 'Event-Korrelation',
         // ENTWURF – von Michal ersetzen
         beschreibung: {
           text: 'Korreliert Ereignisse aus der gesamten Fabric über Correlation '
@@ -341,7 +362,7 @@ window.NETGUARD_CONTENT = {
     umgebung: {
       titel: 'Spielwiese: simulierte Unternehmensumgebung',
       bausteine: [
-        'Windows Server mit AD, DNS und DHCP',
+        'Windows Server mit AD, DNS, DHCP, GPOs',
         'zwei domänenbeigetretene Client-VMs',
         'WLAN-Simulation mit 802.1X/RADIUS',
         'Fileserver und Intranet-Dienste'
@@ -375,47 +396,56 @@ window.NETGUARD_CONTENT = {
   phasen: {
     titel: 'Zwei Phasen',
 
+    /* beschreibung: wörtlich aus Kapitel 1.2 des Antrags. Mehrere Absätze
+       stehen als Liste in eckigen Klammern. punkte: die Hauptziele der Phase
+       mit Kennung und Titel aus Kapitel 2.1. */
     liste: [
       {
         nummer: 1,
         kurz: 'Aufbauphase',
         titel: 'Security Fabric und Spielwiese',
-        // ENTWURF – von Michal ersetzen
-        beschreibung: {
-          text: 'Auf der Cisco UCS entsteht die Spielwiese, eine isolierte, '
-            + 'simulierte Unternehmensumgebung. Parallel dazu werden die vier '
-            + 'Fortinet-Komponenten in Betrieb genommen und zur Security Fabric '
-            + 'verbunden. Am Ende steht ein definierter Ausgangszustand: '
-            + 'Segmentierung und Logging sind aktiv, Security Profiles und eigene '
-            + 'Correlation Rules bewusst noch nicht. Das ist die Baseline.',
-          entwurf: true
-        },
+        beschreibung: [
+          'In der Aufbauphase entsteht auf der Cisco UCS eine simulierte '
+          + 'Unternehmensumgebung, intern „Spielwiese" genannt: ein Windows '
+          + 'Server mit Active Directory, DNS, DHCP und Gruppenrichtlinien, zwei '
+          + 'domänenbeigetretene Client-VMs, eine WLAN-Simulation mit 802.1X '
+          + 'über RADIUS und ein Fileserver mit Intranet-Diensten. Parallel dazu '
+          + 'nehmen wir die vier Fortinet-Komponenten in Betrieb und verbinden '
+          + 'sie zu einer Security Fabric.',
+          'Am Ende der Aufbauphase ist ein definierter Ausgangszustand erreicht: '
+          + 'Segmentierung und Logging sind aktiv, Security Profiles und eigene '
+          + 'Correlation Rules bewusst noch nicht. Dieser Zustand ist die '
+          + 'Baseline.'
+        ],
         punkte: [
-          'FortiGate, FortiManager, FortiAnalyzer und FortiSIEM zur Fabric verbunden',
-          'Active Directory, zwei Client-VMs, 802.1X über RADIUS, FSSO und Fileserver',
-          'Isolation zum Produktivnetz per Konnektivitätstest nachgewiesen',
-          'Baseline als FortiManager-Revision und VM-Snapshot festgehalten'
+          'Ziel-H 1 · Aufbau und Inbetriebnahme der Fortinet Security Fabric',
+          'Ziel-H 2 · Aufbau der simulierten Unternehmensumgebung (Spielwiese)'
         ]
       },
       {
         nummer: 2,
         kurz: 'Evaluierungsphase',
         titel: 'Baseline, Optimierung, Re-Messung',
-        // ENTWURF – von Michal ersetzen
-        beschreibung: {
-          text: 'Acht Angriffsszenarien laufen mit Kali Linux zuerst gegen die '
-            + 'Baseline. Danach wird die Fabric gezielt optimiert, jede Änderung '
-            + 'wird protokolliert. Zum Schluss laufen dieselben acht Szenarien '
-            + 'vom gleichen VM-Snapshot aus noch einmal, diesmal gegen die '
-            + 'optimierte Konfiguration.',
-          entwurf: true
-        },
+        beschreibung: [
+          'In der Evaluierungsphase werden acht Angriffsszenarien mit Kali Linux '
+          + 'gegen die Baseline gefahren. Für jedes Szenario werden '
+          + 'Erkennungsrate, ausgelöste Alerts, False Positives und '
+          + 'Time-to-Detect nach einem vorher festgelegten Kennzahlenmodell '
+          + 'erfasst. Das Ergebnis ist ein Baseline-Bericht, der zeigt, wo die '
+          + 'Standardkonfiguration Lücken hat.',
+          'Danach wird die Fabric gezielt optimiert: IPS-, Application-Control-, '
+          + 'Web-Filter- und Antivirus-Profile, SSL Deep Inspection, eigene '
+          + 'FortiSIEM Correlation Rules samt Incident-Workflow, FortiAnalyzer '
+          + 'Event Handler, Automation Stitches und ein Hardening nach Fortinet '
+          + 'Best Practices bzw. CIS Benchmark. Jede Änderung wird als eigene '
+          + 'Policy-Revision im FortiManager abgelegt und im Tuning-Protokoll '
+          + 'beschrieben. Anschließend laufen dieselben acht Szenarien noch '
+          + 'einmal vom gleichen VM-Snapshot aus.'
+        ],
         punkte: [
-          'Baseline-Messung nach einem vorab freigegebenen Kennzahlenmodell',
-          'Optimierung: Security Profiles, SSL Deep Inspection, Correlation Rules, '
-            + 'Event Handler, Automation Stitches und Hardening',
-          'jeder Tuning-Schritt als eigene Policy-Revision im FortiManager',
-          'Re-Messung aller acht Szenarien unter gleichen Bedingungen'
+          'Ziel-H 3 · Baseline-Messung der Erkennungsleistung',
+          'Ziel-H 4 · Gezielte Optimierung der Security Fabric',
+          'Ziel-H 5 · Re-Messung und Evaluierungsbericht'
         ]
       }
     ],
@@ -438,21 +468,19 @@ window.NETGUARD_CONTENT = {
     // Worauf der Vergleich hinausläuft.
     vergleich: {
       titel: 'Der Vergleich',
-      // ENTWURF – von Michal ersetzen
-      beschreibung: {
-        text: 'Aus den beiden Messreihen entsteht der Evaluierungsbericht. Er '
-          + 'beantwortet die Forschungsfrage mit gemessenen Werten und zeigt, '
-          + 'welche Maßnahme welchen Anteil am Erkennungsgewinn hat.',
-        entwurf: true
-      },
+      // Wörtlich aus Kapitel 1.2. Die Punkte fassen Ziel-H 5 zusammen.
+      beschreibung: 'Aus dem Vergleich der beiden Messreihen ergibt sich, wie '
+        + 'viel Erkennungsleistung aus der Konfiguration kommt und welche '
+        + 'Maßnahme welchen Anteil daran hat. Daraus leiten wir '
+        + 'Konfigurationsempfehlungen für vergleichbare Umgebungen ab.',
       punkte: [
-        'Erkennungsrate, False-Positive-Rate und Time-to-Detect je Szenario, '
-          + 'Baseline gegen optimierte Konfiguration',
-        'Zuordnung der Verbesserungen zu den einzelnen Maßnahmen',
-        'Effekt der SSL Deep Inspection getrennt ausgewiesen',
-        'Zielwert: nach dem Tuning mindestens sieben von acht Szenarien als '
-          + 'Incident erkannt',
-        'Konfigurationsempfehlungen für vergleichbare Umgebungen'
+        'Erkennungsrate, False-Positive-Rate und Time-to-Detect je Szenario für '
+          + 'Baseline und optimierte Konfiguration gegenübergestellt',
+        'Verbesserungen den einzelnen Maßnahmen zugeordnet',
+        'verbliebene False Positives erklärt',
+        'Effekt der SSL Deep Inspection in einer eigenen Vergleichstabelle',
+        'erfüllt, wenn nach dem Tuning mindestens sieben der acht Szenarien in '
+          + 'FortiSIEM als Incident erkannt werden'
       ]
     }
   },
@@ -478,7 +506,7 @@ window.NETGUARD_CONTENT = {
       {
         id: 'fabric',
         phase: 1,
-        titel: 'Aufbau der Security Fabric',
+        titel: 'Security Fabric: Aufbau und Inbetriebnahme',
         zeitraum: '09/2026 – 10/2026',
         status: 'geplant',
         // ENTWURF – von Michal ersetzen
@@ -492,7 +520,7 @@ window.NETGUARD_CONTENT = {
       {
         id: 'spielwiese',
         phase: 1,
-        titel: 'Aufbau der Spielwiese',
+        titel: 'Spielwiese: simulierte Unternehmensumgebung',
         zeitraum: '10/2026 – 12/2026',
         status: 'geplant',
         // ENTWURF – von Michal ersetzen
@@ -624,17 +652,23 @@ window.NETGUARD_CONTENT = {
       }
     ],
 
-    // ENTWURF – von Michal ersetzen
-    verwertung: {
-      text: 'Die Security Fabric bleibt nach Projektende an der HTL Wien 3 '
-        + 'Rennweg und kann im Unterricht weiterverwendet werden. '
-        + 'Konfigurationen, Installationsanleitungen und die FortiSIEM-Regeln '
-        + 'stehen nachfolgenden Jahrgängen als Lehr- und Referenzmaterial zur '
-        + 'Verfügung. Der Szenarienkatalog samt Skripten ist wiederverwendbar: '
-        + 'Künftige Gruppen können eigene Konfigurationen gegen dieselben '
-        + 'Szenarien messen.',
-      entwurf: true
-    }
+    // Wörtlich aus Kapitel 10 des Antrags (Geplante Verwertung der Ergebnisse).
+    verwertung: [
+      'Die aufgebaute Security Fabric bleibt nach Projektende an der HTL Wien 3 '
+      + 'Rennweg und kann im Unterricht der Abteilung weiterverwendet werden. '
+      + 'Konfigurationen, Installationsanleitungen und die FortiSIEM-Regeln '
+      + 'stehen als Lehr- und Referenzmaterial für nachfolgende Jahrgänge zur '
+      + 'Verfügung.',
+      'Der Evaluierungsbericht zeigt mit Messwerten, welchen Anteil einzelne '
+      + 'Konfigurationsmaßnahmen am Erkennungsgewinn haben. Damit entsteht ein '
+      + 'praktischer Leitfaden, der angibt, welche Maßnahmen bei begrenzter Zeit '
+      + 'zuerst umgesetzt werden sollten. Der Szenarienkatalog samt Skripten ist '
+      + 'wiederverwendbar, künftige Gruppen können eigene Konfigurationen gegen '
+      + 'dieselben Szenarien messen.',
+      'Die Ergebnisse werden Fortinet im Rahmen der laufenden Abstimmung '
+      + 'zurückgespielt. Eine Veröffentlichung über die Projektwebsite der '
+      + 'Diplomarbeit ist vorgesehen.'
+    ]
   },
 
   /* ==========================================================================
@@ -816,9 +850,9 @@ window.NETGUARD_CONTENT = {
       },
       {
         frage: 'Werden personenbezogene Daten verarbeitet?',
-        antwort: { text: 'Nein. Gearbeitet wird nur mit Testbenutzern und '
-          + 'Testdaten in der Spielwiese. Netzwerkverkehr aus dem Schulbetrieb '
-          + 'wird weder erhoben noch gespeichert.',
+        antwort: { text: 'Nein. Gearbeitet wird isoliert und ohne '
+          + 'personenbezogene Daten, mit Testbenutzern in der Spielwiese. Alle '
+          + 'Arbeiten finden ausschließlich in der isolierten Laborumgebung statt.',
           entwurf: true }
       },
       {
@@ -842,10 +876,10 @@ window.NETGUARD_CONTENT = {
       },
       {
         frage: 'Wann gibt es Ergebnisse?',
-        antwort: { text: 'Die ersten Werte kommen nach der Baseline-Messung, '
-          + 'voraussichtlich Anfang 2027. Nach der Re-Messung folgt der '
-          + 'Vergleich mit der optimierten Konfiguration. Die Seite '
-          + '„Ergebnisse" wird dann laufend ergänzt.',
+        antwort: { text: 'Die ersten Werte kommen nach der Baseline-Messung. '
+          + 'Nach der Re-Messung folgt der Vergleich mit der optimierten '
+          + 'Konfiguration. Eine Veröffentlichung über die Projektwebsite ist '
+          + 'laut Antrag vorgesehen, die Seite „Ergebnisse" wird dann ergänzt.',
           entwurf: true }
       },
       {

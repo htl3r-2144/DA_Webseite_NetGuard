@@ -25,71 +25,64 @@ gibt es bewusst nicht — diese Datei hier ist nur die Übersicht.
 
 ---
 
-## Navigation — die sechs Kachel-Einzeiler
+## Navigation — Kachel-Einzeiler
 
 Diese Sätze erscheinen **zweimal**: als Beschreibung auf der Kachel der
-Startseite und als Einleitungssatz oben auf der jeweiligen Unterseite. Ein Feld,
-zwei Auftritte — entsprechend kurz und aussagekräftig halten.
+Startseite und als Einleitungssatz oben auf der jeweiligen Unterseite.
 
-- [ ] **Z. 102** · Architektur
-- [ ] **Z. 109** · Phasen
-- [ ] **Z. 116** · Fortschritt
-- [ ] **Z. 123** · Ergebnisse
-- [ ] **Z. 130** · Team
-- [ ] **Z. 137** · Kontakt
+- [ ] **Z. 127** · Architektur
+- [ ] **Z. 141** · Fortschritt
+- [ ] **Z. 148** · Ergebnisse
+- [ ] **Z. 155** · Team
+- [ ] **Z. 162** · Kontakt
+- [ ] **Z. 169** · FAQ
 
-## Startseite
-
-- [ ] **Z. 158** · `hero.untertitel` — Absatz unter dem Projekttitel
-- [ ] **Z. 183** · `ausgangssituation.absaetze` — drei Absätze in einem Feld
-      (Angriffsfläche moderner Netze · warum integrierte Korrelation ·
-      Hardwarebasis an der Schule)
+Der Einzeiler der Phasen-Seite ist ein Satz aus dem Antrag und kein Entwurf.
 
 ## Architektur
 
-- [ ] **Z. 221** · `architektur.einleitung` — Einleitungssatz über dem Diagramm
-- [ ] **Z. 234** · `komponenten[0].beschreibung` — **FortiGate**
-- [ ] **Z. 247** · `komponenten[1].beschreibung` — **FortiManager**
-- [ ] **Z. 259** · `komponenten[2].beschreibung` — **FortiAnalyzer**
-- [ ] **Z. 272** · `komponenten[3].beschreibung` — **FortiSIEM**
-
-## Phasen
-
-- [ ] **Z. 328** · Phase 1, Aufbauphase
-- [ ] **Z. 347** · Phase 2, Evaluierungsphase
-- [ ] **Z. 378** · `phasen.vergleich.beschreibung` — worauf der Vergleich hinausläuft
+- [ ] **Z. 291** · `architektur.einleitung` — Einleitungssatz über dem Diagramm
+- [ ] **Z. 306** · `komponenten[0].beschreibung` — **FortiGate**
+- [ ] **Z. 320** · `komponenten[1].beschreibung` — **FortiManager**
+- [ ] **Z. 334** · `komponenten[2].beschreibung` — **FortiAnalyzer**
+- [ ] **Z. 348** · `komponenten[3].beschreibung` — **FortiSIEM**
 
 ## Fortschritt — sieben Meilensteine
 
-- [ ] **Z. 413** · Aufbau der Security Fabric
-- [ ] **Z. 425** · Aufbau der Laborumgebung
-- [ ] **Z. 438** · Angriffssimulation
-- [ ] **Z. 450** · Passivanalyse Schulnetz-Traffic
-- [ ] **Z. 462** · Vergleichsbericht
-- [ ] **Z. 475** · Konfigurations- und Betriebsdokumentation
-- [ ] **Z. 486** · Abgabe
+- [ ] **Z. 514** · Security Fabric: Aufbau und Inbetriebnahme
+- [ ] **Z. 528** · Spielwiese: simulierte Unternehmensumgebung
+- [ ] **Z. 542** · Baseline-Messung
+- [ ] **Z. 556** · Optimierung der Security Fabric
+- [ ] **Z. 570** · Re-Messung und Evaluierungsbericht
+- [ ] **Z. 584** · Konfigurations- und Betriebsdokumentation
+- [ ] **Z. 598** · Abgabe
 
 ## Ergebnisse
 
-- [ ] **Z. 515** · `ergebnisse.platzhalter` — Text im Leerzustand
-- [ ] **Z. 544** · `ergebnisse.verwertung` — Verbleib der Fabric nach Projektende
+- [ ] **Z. 625** · `ergebnisse.platzhalter` — Text im Leerzustand
 
 ## Team — vier Kurzprofile
 
-- [ ] **Z. 572** · `bio` — David Mayerhofer
-- [ ] **Z. 588** · `bio` — Michal Motola
-- [ ] **Z. 603** · `bio` — Paul Bauer
-- [ ] **Z. 618** · `bio` — Julian Heyderer
+- [ ] **Z. 698** · `bio` — David Mayerhofer
+- [ ] **Z. 717** · `bio` — Michal Motola
+- [ ] **Z. 735** · `bio` — Paul Bauer
+- [ ] **Z. 753** · `bio` — Julian Heyderer
 
 ## Kontakt
 
-- [ ] **Z. 650** · `kontakt.einleitung` — Text neben dem Formular
+- [ ] **Z. 786** · `kontakt.einleitung` — Text neben dem Formular
 
-## Footer
+## FAQ
 
-- [ ] **Z. 679** · `footer.impressum` — ⚠️ **Anschrift gegenprüfen.** Sie steht
-      nicht im Ansuchen, ich habe sie eingesetzt. Auch Medieninhaber und
-      Verantwortlichkeit bitte mit der Betreuung abstimmen.
+- [ ] **Z. 814 bis 887** · `faq.fragen[*].antwort` — neun Antworten, aus dem
+      Antrag formuliert
+
+## Rechtliches — mit Betreuung / Schulleitung abstimmen
+
+- [ ] **Z. 919, 921** · `impressum` — Anschrift und Verantwortliche
+- [ ] **Z. 952** · `impressum` — Freigabe für das Schullogo
+- [ ] **Z. 975** · `datenschutz` — Verantwortlicher
+- [ ] **Z. 1067** · `footer.anschrift`
 
 ---
 
@@ -98,11 +91,12 @@ zwei Auftritte — entsprechend kurz und aussagekräftig halten.
 Diese Inhalte stammen wörtlich oder unmittelbar aus dem DA-Antrag v3
 (18.09.2026) und sind deshalb keine Entwürfe:
 
-Projektname · Arbeitstitel · zentrale Forschungsfrage · Namen und Rollen der
-vier Komponenten · Bausteine der Spielwiese · die acht Angriffsszenarien ·
-die Punkte des Vergleichs · Namen, Kürzel, Rollen und Themenschwerpunkte aller
-sechs Personen · Maturajahrgang · Schule und Abteilung ·
-Generalisierungshinweis im Footer.
+Projektname · Arbeitstitel · Aufgabenstellung · Ausgangssituation ·
+Beschreibung beider Phasen · zentrale Forschungsfrage · der Vergleich ·
+Verwertung · Rollen der vier Komponenten · Bausteine der Spielwiese · die acht
+Angriffsszenarien · Namen, Kürzel, Rollen und Themenschwerpunkte aller sechs
+Personen · Maturajahrgang · Schule und Abteilung · Generalisierungshinweis im
+Footer.
 
 **Ausnahme Zeitplan:** Der Antrag v3 nennt keine Termine. Die Zeiträume der
 Meilensteine stammen aus dem früheren Zeitplan und sind den neuen

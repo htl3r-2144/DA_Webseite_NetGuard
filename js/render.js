@@ -48,6 +48,27 @@
       ? ' <span class="entwurf-badge">Entwurf</span>' : '';
   }
   function tx(v) { return esc(t(v)) + badge(v); }
+  /** Ein Feld mit einem oder mehreren Absätzen als <p>-Elemente.
+      Erlaubt: 'Text', { text, entwurf } oder eine Liste davon. */
+  function absaetze(v) {
+    return [].concat(v || []).map(function (p) { return '<p>' + tx(p) + '</p>'; }).join('');
+  }
+
+  /** Projektlogo in heller und dunkler Variante; CSS zeigt je nach
+      Farbschema genau eine. Das Seitenverhältnis der Dateien ist 470 x 130. */
+  function projektlogo(klasse, alt) {
+    var m = C.meta;
+    if (!m.projektlogo) return esc(C.hero.projektname);
+    return '<span class="ng-logo ' + klasse + '">'
+      + '<img class="logo-hell" src="' + esc(m.projektlogo) + '" alt="' + esc(alt) + '" '
+      +   'width="470" height="130" decoding="async">'
+      + (m.projektlogoInvers
+          ? '<img class="logo-dunkel" src="' + esc(m.projektlogoInvers) + '" alt="" '
+            + 'width="470" height="130" decoding="async" aria-hidden="true">'
+          : '')
+      + '</span>';
+  }
+
   /** Wie tx, aber Zeilenumbrüche im Text werden zu <br>. */
   function txbr(v) { return esc(t(v)).replace(/\n/g, '<br>') + badge(v); }
 
@@ -71,11 +92,16 @@
     + '<path d="M4 10h11M11 5.5 15.5 10 11 14.5" fill="none" stroke="currentColor" '
     + 'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-  /* Das Gewebe-Zeichen: drei Kett- und drei Schussfäden — das Motiv der Seite. */
-  var WEAVE = '<svg class="weave" viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
-    + '<path d="M2 4h12M2 8h12M2 12h12M4 2v12M8 2v12M12 2v12" fill="none" '
-    + 'stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>'
-    + '<circle cx="8" cy="8" r="1.9" fill="currentColor"/></svg>';
+  /* Das Schildzeichen aus dem NetGuard-Logo (Mesh Shield), inline vor
+     Beschriftungen. Schild in Logo-Rot, Knotennetz weiß. */
+  var MARK = '<svg class="mark" viewBox="10 4 80 94" aria-hidden="true" focusable="false">'
+    + '<path d="M50 6 L88 20 V52 C88 74 70 90 50 96 C30 90 12 74 12 52 V20 Z" fill="currentColor"/>'
+    + '<path d="M50 50 L50 24M50 50 L27 39M50 50 L73 39M50 50 L33 70M50 50 L67 70'
+    + 'M50 24 L27 39M50 24 L73 39M27 39 L33 70M73 39 L67 70M33 70 L67 70" '
+    + 'stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none"/>'
+    + '<g fill="#fff"><circle cx="50" cy="24" r="6"/><circle cx="27" cy="39" r="6"/>'
+    + '<circle cx="73" cy="39" r="6"/><circle cx="33" cy="70" r="6"/>'
+    + '<circle cx="67" cy="70" r="6"/><circle cx="50" cy="50" r="9"/></g></svg>';
 
   /* -- Theme-Umschalter ----------------------------------------------------
      Hell ist auf jeder Seite der Standard, unabhängig vom Systemschema. Ein
@@ -195,10 +221,10 @@
       + '<div class="wrap">'
       + '<a class="brand" href="./index.html" aria-label="' + esc(C.hero.projektname)
       +   ' — zur Startseite">'
+      +   projektlogo('brand-ng', C.hero.projektname)
       +   '<span class="brand-logo"><img src="' + esc(m.logo) + '" alt="' + esc(m.logoAlt) + '" '
       +   'width="' + esc(m.logoBreite) + '" height="' + esc(m.logoHoehe) + '" '
       +   'decoding="async"></span>'
-      +   '<span class="brand-name">' + WEAVE + esc(C.hero.projektname) + '</span>'
       + '</a>'
       + '<button type="button" class="nav-toggle" id="nav-toggle" '
       +   'aria-expanded="false" aria-controls="site-nav" aria-label="Menü öffnen">'
@@ -310,10 +336,10 @@
     var gesamt = unterseiten().length;
     var meta = metaFuer(SEITE);
     var index = nr
-      ? '<p class="doc-index" data-auftritt>' + WEAVE + 'Dokument '
+      ? '<p class="doc-index" data-auftritt>' + MARK + 'Dokument '
         + '<span class="aktiv">' + zweistellig(nr) + '</span>'
         + '<span class="strich"></span>' + zweistellig(gesamt) + '</p>'
-      : '<p class="doc-index" data-auftritt>' + WEAVE + esc(opts.kicker || 'Rechtliches') + '</p>';
+      : '<p class="doc-index" data-auftritt>' + MARK + esc(opts.kicker || 'Rechtliches') + '</p>';
 
     return '<header class="page-head">'
       + '<div class="wrap">'
@@ -391,9 +417,9 @@
       + '<svg class="fabric" id="fabric-mesh" aria-hidden="true" focusable="false"></svg>'
       + '<div class="wrap hero-grid">'
       +   '<div class="hero-text">'
-      +     '<p class="hero-kicker" data-auftritt>' + WEAVE + 'Diplomarbeit · ' + esc(C.footer.schule)
+      +     '<p class="hero-kicker" data-auftritt>' + MARK + 'Diplomarbeit · ' + esc(C.footer.schule)
       +       ' · Maturajahrgang ' + esc(C.footer.maturajahrgang) + '</p>'
-      +     '<h1 id="h-hero" data-auftritt>' + esc(h.projektname) + '</h1>'
+      +     '<h1 id="h-hero" class="hero-logo" data-auftritt>' + projektlogo('hero-ng', h.projektname) + '</h1>'
       +     '<p class="hero-antragstitel" data-auftritt>' + esc(h.antragstitel) + '</p>'
       +     '<p class="hero-untertitel" data-auftritt>' + tx(h.untertitel) + '</p>'
       +     '<div class="hero-aktionen" data-auftritt>' + aktionen + '</div>'
@@ -414,6 +440,15 @@
       +   '</ul>'
       + '</div>'
       + '</section>'
+
+      + (C.aufgabenstellung
+          ? '<section class="block" aria-labelledby="h-aufgabe">'
+            + '<div class="wrap split">'
+            +   '<div class="split-head"><h2 id="h-aufgabe">' + esc(C.aufgabenstellung.titel) + '</h2></div>'
+            +   '<div class="prose prose-lg">' + absaetze(C.aufgabenstellung.absaetze) + '</div>'
+            + '</div>'
+            + '</section>'
+          : '')
 
       + '<section class="block" aria-labelledby="h-ausgang">'
       + '<div class="wrap split">'
@@ -709,7 +744,7 @@
               +   '<h2 class="phase-kurz">' + esc(ph.kurz) + '</h2>'
               + '</div>'
               + '<p class="phase-titel">' + esc(ph.titel) + '</p>'
-              + '<p>' + tx(ph.beschreibung) + '</p>'
+              + '<div class="phase-text">' + absaetze(ph.beschreibung) + '</div>'
               + '<ul class="punkte">'
               +   ph.punkte.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('')
               + '</ul>'
@@ -735,7 +770,7 @@
       + '<div class="wrap split">'
       +   '<div class="split-head"><h2 id="h-vgl">' + esc(p.vergleich.titel) + '</h2></div>'
       +   '<div>'
-      +     '<div class="prose prose-lg"><p>' + tx(p.vergleich.beschreibung) + '</p></div>'
+      +     '<div class="prose prose-lg">' + absaetze(p.vergleich.beschreibung) + '</div>'
       +     '<ul class="punkte" style="margin-top:var(--sp-5)">'
       +       p.vergleich.punkte.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('')
       +     '</ul>'
@@ -834,7 +869,7 @@
       + '<section class="block" aria-labelledby="h-verw">'
       + '<div class="wrap split">'
       +   '<div class="split-head"><h2 id="h-verw">Verwertung</h2></div>'
-      +   '<div class="prose prose-lg"><p>' + tx(e.verwertung) + '</p></div>'
+      +   '<div class="prose prose-lg">' + absaetze(e.verwertung) + '</div>'
       + '</div>'
       + '</section>';
   }
@@ -872,7 +907,7 @@
               +   '<span class="rolle">' + esc(m.rolle) + ' · ' + esc(m.kuerzel) + '</span></div>'
               + '</div>'
               + (m.komponente
-                  ? '<span class="komponente">' + WEAVE + esc(m.komponente) + '</span>' : '')
+                  ? '<span class="komponente">' + MARK + esc(m.komponente) + '</span>' : '')
               + '<p class="bio">' + tx(m.bio) + '</p>'
               + '<p class="schwerpunkt"><span class="label">Themenschwerpunkt</span>'
               +   esc(m.schwerpunkt) + '</p>'
@@ -1126,6 +1161,7 @@
       '<div class="wrap">'
       + '<div class="footer-grid">'
       +   '<div class="footer-schule-block">'
+      +     projektlogo('footer-ng', C.hero.projektname)
       +     (m.schulWebsite
             ? '<a class="footer-logo" href="' + esc(m.schulWebsite) + '"' + extern
               + ' aria-label="' + esc(f.schule) + ' — Website der Schule (öffnet in neuem Tab)">'
@@ -1170,7 +1206,7 @@
       +   '</div>'
       + '</div>'
       + '<p class="footer-meta">'
-      +   '<span>' + WEAVE + esc(C.hero.projektname) + ' · ' + HEUTE.getFullYear() + '</span>'
+      +   '<span>' + MARK + esc(C.hero.projektname) + ' · ' + HEUTE.getFullYear() + '</span>'
       +   '<span>' + (analytikAktiv
             ? 'Cookiefreie Besucherstatistik aktiv — Details in der Datenschutzerklärung.'
             : 'Diese Seite lädt keine externen Ressourcen und setzt keine Cookies.') + '</span>'

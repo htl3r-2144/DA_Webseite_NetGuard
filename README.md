@@ -141,12 +141,28 @@ Inter, JetBrains Mono und IBM Plex Sans Condensed liegen als WOFF2 in
 `assets/fonts/`, jeweils mit OFL-Lizenztext. Details in
 [assets/fonts/README.md](assets/fonts/README.md).
 
-### Logo
+### Logos
 
-`assets/logo-htl.svg` (Wortmarke, Kopfzeile) und `assets/logo-htl-slogan.svg`
-(mit Slogan, Fußzeile) sind aus der offiziellen Logodatei erzeugt. Die Grafik
-ist nachgezeichnet und braucht einen hellen Untergrund — deshalb liegt sie
-immer auf einer weißen Plakette, auch im dunklen Modus.
+**Projektlogo „Mesh Shield":** `assets/netguard-logo.svg` und
+`assets/netguard-logo-inverse.svg` (weißes „Net" für den dunklen Modus). Der
+Schriftzug ist Montserrat Bold, in Pfade umgewandelt, damit das Logo ohne
+installierte Schrift überall gleich aussieht. Es steht in der Kopfzeile, als
+Überschrift der Startseite und in der Fußzeile. `assets/favicon.svg` und die
+PNG-Icons zeigen das Schild allein.
+
+**Schullogo:** `assets/logo-htl.svg` (Kopfzeile, nur auf breiten Bildschirmen)
+und `assets/logo-htl-slogan.svg` (Fußzeile) sind aus der offiziellen Logodatei
+erzeugt. Die Grafik ist nachgezeichnet und braucht einen hellen Untergrund,
+deshalb liegt sie immer auf einer weißen Plakette, auch im dunklen Modus.
+
+### Versionsnummer nach Änderungen erhöhen
+
+GitHub Pages lässt Browser Dateien bis zu zehn Minuten zwischenspeichern. Damit
+Besucher nach einer Änderung nicht eine Mischung aus alter und neuer Fassung
+sehen, hängt an CSS und JavaScript eine Versionsnummer, z. B.
+`./css/styles.css?v=20260925`. Nach Änderungen an `css/`, `js/` oder
+`data/content.js` diese Nummer in allen `.html`-Dateien auf das aktuelle Datum
+setzen (Suchen und Ersetzen über alle Dateien).
 
 ### Social-Preview und Icons neu erzeugen
 
