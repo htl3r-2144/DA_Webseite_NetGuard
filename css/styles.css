@@ -1456,3 +1456,186 @@ a.footer-logo:hover { border-color: var(--accent-line); }
   .faq { break-inside: avoid; }
   .faq:not([open]) .faq-antwort { display: block; }
 }
+
+/* == 3D & HIGHTECH-EFFEKTE (Upgrade 2026-11) ================================
+   Nur bestehende Farb-Variablen. Ohne WebGL/JS greift das alte SVG-Gewebe.  */
+
+/* Hero: 3D-Leinwand über die ganze Fläche, Geräte auf der Bühne rechts */
+.hero-3d {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  opacity: 0; transition: opacity 0.9s ease;
+}
+.hero-3d.is-3d { opacity: 1; }
+.hero-3d canvas { display: block; width: 100% !important; height: 100% !important; }
+.has-3d .fabric { display: none; }
+.hero-rechts { display: flex; flex-direction: column; gap: var(--sp-4); justify-self: end; width: 100%; max-width: 34rem; }
+.hero-buehne { display: none; }
+.has-3d .hero-buehne { display: block; height: clamp(15rem, 24vw, 21rem); }
+.has-3d .hero .konsole {
+  background: color-mix(in srgb, var(--konsole-bg) 88%, transparent);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.hero-text { position: relative; }
+.has-3d .hero-text { z-index: 1; }
+.has-3d .hero-text::before {
+  /* Lesbarkeit: weicher heller Schleier hinter dem Text */
+  content: ''; position: absolute; inset: -2rem -3rem -2rem -50vw; z-index: -1;
+  background: radial-gradient(ellipse at 30% 50%, var(--bg) 40%, transparent 75%);
+  pointer-events: none;
+}
+@media (max-width: 960px) {
+  .hero-rechts { justify-self: stretch; max-width: none; }
+  .has-3d .hero-buehne { height: 16rem; }
+}
+
+/* Scan-Linie, die einmal über den Hero läuft */
+.has-3d .hero::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0; pointer-events: none;
+  animation: scan 7s ease-in-out 1.2s infinite;
+}
+@keyframes scan {
+  0% { transform: translateY(0); opacity: 0; }
+  8% { opacity: 0.55; }
+  45% { transform: translateY(var(--scan-h, 640px)); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* Architektur: 3D-Laboraufbau */
+.labor {
+  margin: 0 0 var(--sp-6);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--schatten);
+  overflow: hidden;
+  position: relative;
+}
+.labor-kopf {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-5);
+  padding: var(--sp-4) var(--sp-5);
+  border-bottom: 1px solid var(--border);
+}
+.labor-titel {
+  display: flex; align-items: center;
+  font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-2);
+}
+.labor-hilfe { font-family: var(--font-mono); font-size: var(--step--2); color: var(--fg-3); flex: 1; }
+.labor-angriff { padding-block: 0.45rem; }
+.labor-buehne {
+  height: clamp(22rem, 42vw, 32rem);
+  cursor: grab;
+  background:
+    radial-gradient(ellipse at 50% 40%, var(--card) 0%, var(--bg) 100%);
+}
+.labor-buehne:active { cursor: grabbing; }
+.labor-buehne canvas { display: block; width: 100% !important; height: 100% !important; }
+.labor-caption {
+  padding: var(--sp-3) var(--sp-5);
+  border-top: 1px solid var(--border);
+  font-size: var(--step--1); color: var(--fg-3);
+}
+
+/* Kacheln & Karten: Lichtkegel unter dem Mauszeiger + leichtes Kippen */
+.fx-glow { position: relative; isolation: isolate; }
+.fx-glow::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%),
+              var(--accent-tint), transparent 70%);
+  opacity: 0; transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+.fx-glow:hover::after { opacity: 1; }
+.fx-tilt { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform 0.2s ease; }
+
+/* Entschlüsseln: Zeichen während des Effekts in Mono + Akzent */
+.fx-scramble .fx-z { color: var(--accent); font-family: var(--font-mono); }
+
+/* Statuskonsole: Zeilen erscheinen nacheinander */
+.fx-tippen .k-line { opacity: 0; transform: translateX(-4px); transition: opacity 0.3s ease, transform 0.3s ease; }
+.fx-tippen .k-line.is-da { opacity: 1; transform: none; }
+
+/* Video-Band hinter der Forschungsfrage */
+.frage-band { position: relative; overflow: hidden; }
+.frage-band > .wrap { position: relative; }
+.frage-video {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; opacity: 0.35;
+  -webkit-mask-image: linear-gradient(90deg, transparent 10%, #000 70%);
+          mask-image: linear-gradient(90deg, transparent 10%, #000 70%);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-3d { transition: none; }
+  .fx-tilt { transform: none !important; }
+  .frage-video { display: none; }
+}
+
+/* Angriffs-Simulator unter dem 3D-Labor */
+.sim { border-top: 1px solid var(--border); }
+.sim-steuerung {
+  display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-6);
+  justify-content: space-between; align-items: flex-end;
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--sunk);
+  border-bottom: 1px solid var(--border);
+}
+.sim-gruppe { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-2) var(--sp-3); }
+.sim-label {
+  flex-basis: 100%;
+  font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-3);
+}
+.sim-szenarien, .sim-modus { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.sim-szenarien button, .sim-modus button {
+  font: inherit; font-size: var(--step--1);
+  padding: 0.4rem 0.7rem;
+  background: var(--card); color: var(--fg);
+  border: 1px solid var(--border-strong); border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.sim-szenarien button .nr { font-family: var(--font-mono); font-size: var(--step--2); color: var(--fg-3); margin-right: 0.4rem; }
+.sim-szenarien button:hover, .sim-modus button:hover { border-color: var(--accent); }
+.sim-szenarien button[aria-pressed="true"], .sim-modus button[aria-pressed="true"] {
+  background: var(--accent-tint); border-color: var(--accent); color: var(--accent-hi);
+}
+.sim-szenarien button[aria-pressed="true"] .nr { color: var(--accent); }
+.sim-modus { margin-right: var(--sp-2); }
+.sim-start { padding-block: 0.45rem; }
+.sim.laeuft .sim-start { opacity: 0.6; }
+
+.sim-info { padding: var(--sp-4) var(--sp-5) var(--sp-5); }
+.sim-meta { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-bottom: var(--sp-3); max-width: none; }
+.sim-tag {
+  font-family: var(--font-mono); font-size: var(--step--2);
+  padding: 0.15rem 0.5rem; border-radius: 3px;
+  background: var(--sunk); color: var(--fg-2); border: 1px solid var(--border);
+}
+.sim-tag.is-optimiert { background: var(--status-fertig-t); color: var(--status-fertig); border-color: transparent; }
+.sim-tag.is-baseline  { background: var(--status-lauf-t);   color: var(--status-lauf);   border-color: transparent; }
+.sim-schritte { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.sim-schritte li {
+  display: flex; gap: var(--sp-3); align-items: baseline;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid var(--border);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--fg-3);
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+.sim-schritte li .nr { font-family: var(--font-mono); font-size: var(--step--2); flex: 0 0 auto; }
+.sim-schritte li .txt { font-size: var(--step--1); }
+.sim-schritte li.is-fertig { color: var(--fg-2); border-left-color: var(--fg-3); }
+.sim-schritte li.is-aktiv {
+  color: var(--fg); background: var(--accent-tint); border-left-color: var(--accent);
+}
+.sim-schritte li.is-aktiv .nr { color: var(--accent); }
+.sim-schritte .sim-leer { border-left-color: transparent; font-style: italic; }
+.sim-hinweis {
+  margin: var(--sp-4) 0 0; font-size: var(--step--2); color: var(--fg-3);
+  font-family: var(--font-mono); max-width: none;
+}

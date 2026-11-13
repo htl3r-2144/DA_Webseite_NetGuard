@@ -415,6 +415,7 @@
 
     return '<section class="hero" aria-labelledby="h-hero">'
       + '<svg class="fabric" id="fabric-mesh" aria-hidden="true" focusable="false"></svg>'
+      + '<div class="hero-3d" id="hero-3d" aria-hidden="true"></div>'
       + '<div class="wrap hero-grid">'
       +   '<div class="hero-text">'
       +     '<p class="hero-kicker" data-auftritt>' + MARK + 'Diplomarbeit · ' + esc(C.footer.schule)
@@ -424,7 +425,10 @@
       +     '<p class="hero-untertitel" data-auftritt>' + tx(h.untertitel) + '</p>'
       +     '<div class="hero-aktionen" data-auftritt>' + aktionen + '</div>'
       +   '</div>'
-      +   renderKonsole()
+      +   '<div class="hero-rechts">'
+      +     '<div class="hero-buehne" id="hero-buehne" aria-hidden="true"></div>'
+      +     renderKonsole()
+      +   '</div>'
       + '</div>'
       + '</section>'
 
@@ -485,6 +489,15 @@
   function initFabric() {
     var svg = $('#fabric-mesh');
     if (!svg) return;
+    /* 3D-Fassung, wenn WebGL und js/scene3d.js da sind; sonst das SVG-Gewebe. */
+    var el3d = $('#hero-3d');
+    if (el3d && window.NetGuard3D && window.NetGuard3D.verfuegbar()) {
+      document.documentElement.classList.add('has-3d');
+      try {
+        if (window.NetGuard3D.hero(el3d, $('#hero-buehne'))) return;
+      } catch (e) { console.warn('3D-Hero nicht verfügbar:', e); }
+      document.documentElement.classList.remove('has-3d');
+    }
     var W = 760, H = 560, STEP = 76, OFF = 22;
     svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
     svg.setAttribute('preserveAspectRatio', 'xMaxYMin slice');
@@ -588,11 +601,94 @@
     });
   }
 
+  /* Angriffs-Simulator: Auswahl, Modus, Schrittliste. Die Animation selbst
+     steckt in js/scene3d.js (labor.ablauf). */
+  function renderSimulator(sim) {
+    return '<div class="sim" id="sim">'
+      + '<div class="sim-steuerung">'
+      +   '<div class="sim-gruppe">'
+      +     '<span class="sim-label">Szenario</span>'
+      +     '<div class="sim-szenarien" role="group" aria-label="Angriffsszenario wählen">'
+      +       sim.szenarien.map(function (s, i) {
+                return '<button type="button" data-szenario="' + esc(s.id) + '" aria-pressed="false">'
+                  + '<span class="nr">' + zweistellig(i + 1) + '</span>' + esc(s.name) + '</button>';
+              }).join('')
+      +     '</div>'
+      +   '</div>'
+      +   '<div class="sim-gruppe">'
+      +     '<span class="sim-label">Konfiguration</span>'
+      +     '<div class="sim-modus" role="group" aria-label="Konfiguration wählen">'
+      +       '<button type="button" data-modus="baseline" aria-pressed="false">Baseline</button>'
+      +       '<button type="button" data-modus="optimiert" aria-pressed="true">Optimiert</button>'
+      +     '</div>'
+      +     '<button type="button" class="btn btn-primary sim-start" id="sim-start">Ablauf starten' + PFEIL + '</button>'
+      +   '</div>'
+      + '</div>'
+      + '<div class="sim-info">'
+      +   '<p class="sim-meta" id="sim-meta"></p>'
+      +   '<ol class="sim-schritte" id="sim-schritte" aria-live="polite"></ol>'
+      +   '<p class="sim-hinweis">' + esc(sim.hinweis) + badge(sim) + '</p>'
+      + '</div>'
+      + '</div>';
+  }
+
+  var ANKER_NAME = { kali: 'Kali-VM', umgebung: 'Spielwiese' };
+
+  /** Baut aus einem Szenario die Schritte für Baseline oder Optimiert. */
+  function simSchritte(s, modus, komp) {
+    var fg = komp[0], fmg = komp[1], faz = komp[2], siem = komp[3];
+    var start = { von: s.von, nach: fg.id, art: 'angriff', fokus: fg.id,
+                  text: '<b>Angriff.</b> ' + esc(s.angriff) };
+    if (modus === 'baseline') {
+      if (s.baselineBlockt) {
+        return [start,
+          { bei: fg.id, effekt: 'block', fokus: fg.id,
+            text: '<b>Baseline.</b> Schon die Grundkonfiguration verwirft den Verkehr, weil keine Policy ihn erlaubt.' },
+          { von: fg.id, nach: faz.id, art: 'log', fokus: faz.id,
+            text: 'Ein Deny-Log geht an den ' + esc(faz.name) + ' – ob daraus eine Meldung wird, hängt am Event Handler.' },
+          { bei: siem.id, effekt: 'still', fokus: siem.id,
+            text: 'Ohne Korrelationsregel bleibt es beim Log-Eintrag. Wie schnell das auffällt, misst Messreihe 1.' }];
+      }
+      return [start,
+        { von: fg.id, nach: s.nach, art: 'angriff', effekt: 'treffer',
+          text: '<b>Baseline.</b> Die Policy erlaubt den Verkehr, ohne Security Profiles prüft niemand den Inhalt. '
+            + 'Der Angriff erreicht ' + esc(ANKER_NAME[s.nach] || 'das Ziel') + '.' },
+        { von: fg.id, nach: faz.id, art: 'log', fokus: faz.id,
+          text: 'Beim ' + esc(faz.name) + ' landet nur ein gewöhnliches Traffic-Log, ohne Hinweis auf einen Angriff.' },
+        { bei: siem.id, effekt: 'still', fokus: siem.id,
+          text: esc(siem.name) + ' hat nichts, das anschlägt. Ob und wann der Angriff auffällt, misst Messreihe 1.' }];
+    }
+    return [
+      { von: fmg.id, nach: fg.id, art: 'verkehr', fokus: fmg.id, dauer: 1.2,
+        text: '<b>Vorher.</b> Der ' + esc(fmg.name) + ' hat das optimierte Policy-Package auf die ' + esc(fg.name) + ' ausgerollt.' },
+      start,
+      { bei: fg.id, effekt: 'block', fokus: fg.id,
+        text: '<b>Erkennung.</b> ' + esc(s.profil) + ' erkennt ' + esc(s.erkennung) + '.' },
+      { von: fg.id, nach: faz.id, art: 'log', fokus: faz.id,
+        text: 'Das Security-Log geht an den ' + esc(faz.name) + ', ein Event Handler schlägt an.' },
+      { von: faz.id, nach: siem.id, art: 'event', effekt: 'alarm', fokus: siem.id,
+        text: esc(siem.name) + ' korreliert das Ereignis mit anderen Quellen und legt einen Incident an.' },
+      { bei: s.von, effekt: 'block',
+        text: '<b>Reaktion.</b> ' + esc(s.reaktion) }
+    ];
+  }
+
   function renderArchitektur() {
     var a = C.architektur;
     return '<section class="block">'
       + '<div class="wrap">'
       +   '<div class="prose prose-lg" style="margin-bottom:var(--sp-6)"><p>' + tx(a.einleitung) + '</p></div>'
+      +   '<figure class="labor" id="labor" data-auftritt hidden>'
+      +     '<div class="labor-kopf">'
+      +       '<span class="labor-titel">' + MARK + 'Laboraufbau in 3D</span>'
+      +       '<span class="labor-hilfe">Ziehen zum Drehen · Komponente anklicken</span>'
+      +     '</div>'
+      +     '<div class="labor-buehne" id="labor-buehne"></div>'
+      +     (a.simulation ? renderSimulator(a.simulation) : '')
+      +     '<figcaption class="labor-caption">Generalisierte Darstellung ohne Herstellermodelle. '
+      +       'FortiManager, FortiAnalyzer und FortiSIEM laufen als virtuelle Maschinen auf dem Server.'
+      +     '</figcaption>'
+      +   '</figure>'
       +   '<div class="arch-layout">'
       +     '<figure class="arch-figure" data-auftritt>'
       +       '<svg id="arch-svg" xmlns="http://www.w3.org/2000/svg"></svg>'
@@ -714,6 +810,25 @@
       });
     }
 
+    /* 3D-Laboraufbau: Auswahl ist mit Diagramm und Liste gekoppelt. */
+    var labor = null;
+    var laborEl = $('#labor');
+    if (laborEl && window.NetGuard3D && window.NetGuard3D.verfuegbar()) {
+      laborEl.hidden = false;
+      try {
+        labor = window.NetGuard3D.labor($('#labor-buehne'), {
+          komponenten: a.komponenten,
+          onSelect: function (id) { zeige(id); }
+        });
+      } catch (e) { console.warn('3D-Labor nicht verfügbar:', e); }
+      if (!labor) laborEl.hidden = true;
+    }
+    if (labor) {
+      var zeigeOhne3d = zeige;
+      zeige = function (id) { zeigeOhne3d(id); labor.markiere(id); };
+      if ($('#sim')) initSimulator(labor, a);
+    }
+
     $$('#arch-svg .node').forEach(function (n) {
       var id = n.getAttribute('data-id');
       n.addEventListener('mouseenter', function () { zeige(id); });
@@ -728,6 +843,58 @@
     });
 
     zeige(a.komponenten[0].id);
+  }
+
+  function initSimulator(labor, a) {
+    var sim = a.simulation;
+    var szenario = sim.szenarien[0], modus = 'optimiert';
+    var liste = $('#sim-schritte'), meta = $('#sim-meta');
+
+    function zeigeAuswahl() {
+      $$('.sim-szenarien button').forEach(function (b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-szenario') === szenario.id ? 'true' : 'false');
+      });
+      $$('.sim-modus button').forEach(function (b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-modus') === modus ? 'true' : 'false');
+      });
+      meta.innerHTML = (szenario.mitre
+          ? '<span class="sim-tag">MITRE ATT&amp;CK ' + esc(szenario.mitre) + '</span>' : '')
+        + '<span class="sim-tag">' + esc(ANKER_NAME[szenario.von]) + ' → ' + esc(ANKER_NAME[szenario.nach]) + '</span>'
+        + '<span class="sim-tag is-' + modus + '">' + (modus === 'baseline' ? 'Baseline' : 'Optimiert') + '</span>';
+    }
+
+    function starte() {
+      var schritte = simSchritte(szenario, modus, a.komponenten);
+      liste.innerHTML = schritte.map(function (s, i) {
+        return '<li data-i="' + i + '"><span class="nr">' + zweistellig(i + 1) + '</span>'
+          + '<span class="txt">' + s.text + '</span></li>';
+      }).join('');
+      var lis = $$('li', liste);
+      $('#sim').classList.add('laeuft');
+      labor.ablauf(schritte, function (i) {
+        lis.forEach(function (li, k) {
+          li.classList.toggle('is-aktiv', k === i);
+          li.classList.toggle('is-fertig', k < i);
+        });
+        if (i >= schritte.length) $('#sim').classList.remove('laeuft');
+      });
+    }
+
+    $$('.sim-szenarien button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        szenario = sim.szenarien.filter(function (s) { return s.id === b.getAttribute('data-szenario'); })[0];
+        zeigeAuswahl(); starte();
+      });
+    });
+    $$('.sim-modus button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        modus = b.getAttribute('data-modus');
+        zeigeAuswahl(); starte();
+      });
+    });
+    $('#sim-start').addEventListener('click', starte);
+    zeigeAuswahl();
+    liste.innerHTML = '<li class="sim-leer">Szenario wählen oder „Ablauf starten“ drücken.</li>';
   }
 
   /* -- Phasen -------------------------------------------------------------- */

@@ -380,6 +380,71 @@ window.NETGUARD_CONTENT = {
       ]
     },
 
+    /* Angriffs-Simulator im 3D-Laboraufbau. Pro Szenario:
+         von / nach  Start und Ziel: 'kali' oder 'umgebung'. Bei Szenarien,
+                     die von einem Client ausgehen (C2, DNS-Tunnel …), spielt
+                     die Kali-VM den Server im simulierten Internet.
+         mitre       Technik-ID aus MITRE ATT&CK (leer lassen, wenn keine passt)
+         profil      welche Funktion der optimierten Konfiguration greift
+         baselineBlockt  true, wenn schon die Baseline den Verkehr verwirft
+       Die Abläufe sind eine ILLUSTRATION des Plans, keine Messergebnisse.
+       ENTWURF – vom Team gegen den Szenarienkatalog prüfen. */
+    simulation: {
+      entwurf: true,
+      hinweis: 'Illustration des geplanten Ablaufs. Ob und wie schnell ein Angriff '
+        + 'tatsächlich erkannt wird, zeigen erst die beiden Messreihen.',
+      szenarien: [
+        { id: 'portscan', name: 'Port Scan', mitre: 'T1046',
+          von: 'kali', nach: 'umgebung',
+          angriff: 'Kali tastet die Hosts der Spielwiese nach offenen Ports ab.',
+          profil: 'IPS und DoS-Policy',
+          erkennung: 'viele Verbindungsversuche auf wechselnde Ports in kurzer Zeit',
+          reaktion: 'Die Quell-IP wird für eine festgelegte Zeit gesperrt.' },
+        { id: 'bruteforce', name: 'Brute Force gegen SMB/RDP', mitre: 'T1110',
+          von: 'kali', nach: 'umgebung',
+          angriff: 'Kali probiert in schneller Folge Passwörter gegen SMB und RDP.',
+          profil: 'IPS-Signaturen',
+          erkennung: 'gehäufte fehlgeschlagene Anmeldungen von derselben Quelle',
+          reaktion: 'Die Verbindungen werden verworfen, der Angreifer gesperrt.' },
+        { id: 'lateral', name: 'Lateral Movement', mitre: 'T1021',
+          von: 'umgebung', nach: 'umgebung',
+          angriff: 'Ein übernommener Client greift per Remote-Dienst auf andere Hosts zu.',
+          profil: 'IPS und Segmentierungs-Policies',
+          erkennung: 'Remote-Zugriffe zwischen Clients, die im Normalbetrieb nicht vorkommen',
+          reaktion: 'Der Client wird per Automation Stitch in Quarantäne gesetzt.' },
+        { id: 'c2', name: 'C2-Beaconing', mitre: 'T1071',
+          von: 'umgebung', nach: 'kali',
+          angriff: 'Ein Client meldet sich in festen Abständen bei einem Command-and-Control-Server.',
+          profil: 'Application Control und IPS',
+          erkennung: 'gleichförmige, regelmäßige Verbindungen zu einem unbekannten Ziel',
+          reaktion: 'Das Ziel wird gesperrt, der Client markiert.' },
+        { id: 'policy', name: 'Policy-Verstoß zwischen VLANs', mitre: '',
+          von: 'umgebung', nach: 'umgebung', baselineBlockt: true,
+          angriff: 'Ein Host versucht ein Segment zu erreichen, für das keine Freigabe besteht.',
+          profil: 'Firewall-Policy mit Logging für verworfenen Verkehr',
+          erkennung: 'Verkehr ohne erlaubende Policy',
+          reaktion: 'Der Verkehr wird verworfen und als Verstoß gemeldet.' },
+        { id: 'malware', name: 'Malware-Download', mitre: 'T1105',
+          von: 'kali', nach: 'umgebung',
+          angriff: 'Ein Client lädt eine präparierte Testdatei aus dem simulierten Internet.',
+          profil: 'Antivirus mit SSL Deep Inspection',
+          erkennung: 'bekannte Schadsoftware-Signatur im Download',
+          reaktion: 'Der Download wird abgebrochen, die Datei kommt nicht an.' },
+        { id: 'webfilter', name: 'Web-Filter-Umgehung', mitre: 'T1090',
+          von: 'umgebung', nach: 'kali',
+          angriff: 'Ein Client versucht gesperrte Seiten über einen Proxy zu erreichen.',
+          profil: 'Web Filter und Application Control',
+          erkennung: 'Proxy-Verkehr und Aufrufe gesperrter Kategorien',
+          reaktion: 'Die Verbindung wird blockiert und protokolliert.' },
+        { id: 'dnstunnel', name: 'DNS-Tunneling', mitre: 'T1071.004',
+          von: 'umgebung', nach: 'kali',
+          angriff: 'Ein Client schleust Daten in DNS-Anfragen nach außen.',
+          profil: 'DNS-Filter und IPS',
+          erkennung: 'auffällig lange, zufällig wirkende Subdomains in DNS-Anfragen',
+          reaktion: 'Die Anfragen werden verworfen, der Client markiert.' }
+      ]
+    },
+
     // Beschriftungen der Pfeile im Diagramm. Kurz halten, max. ca. 20 Zeichen.
     fluesse: {
       trafficLabor:  'Traffic',
